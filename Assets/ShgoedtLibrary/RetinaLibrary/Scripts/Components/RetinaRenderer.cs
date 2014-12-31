@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using Shgoedt;
 
 namespace Shgoedt.Retina
 {
@@ -15,6 +16,7 @@ namespace Shgoedt.Retina
 		public virtual void Awake()
 		{
 			// Awake this renderer.
+
 		}
 
 		/// <summary>
