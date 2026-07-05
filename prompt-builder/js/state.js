@@ -24,7 +24,8 @@ export const defaultState = {
   includeBodyDetails: true,
   customOutfit: '',
   customPose: '',
-  imageResolution: '1024x1024'
+  imageStyle_gen: 'realistic',
+  imageQuality: 'fast'
 };
 
 export function loadState() {
