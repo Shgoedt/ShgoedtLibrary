@@ -60,7 +60,6 @@ export async function generateImage({
   prompt,
   resolution = '1024x1024',
   seed = -1,
-  nsfwThreshold = 0.5,
   onStatus
 }) {
   if (!apiKey?.trim()) {
@@ -82,8 +81,7 @@ export async function generateImage({
       prompt: prompt.trim(),
       resolution,
       num_images: 1,
-      seed,
-      nsfw_threshold: nsfwThreshold
+      seed
     })
   });
 

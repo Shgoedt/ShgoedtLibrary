@@ -24,8 +24,7 @@ export const defaultState = {
   includeBodyDetails: true,
   customOutfit: '',
   customPose: '',
-  imageResolution: '1024x1024',
-  nsfwThreshold: 0.5
+  imageResolution: '1024x1024'
 };
 
 export function loadState() {
