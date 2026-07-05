@@ -342,7 +342,6 @@ function bindImageGeneration() {
         prompt,
         resolution,
         seed: Number.isFinite(seed) ? seed : -1,
-        nsfwThreshold: state.nsfwThreshold ?? 0.5,
         onStatus: setImageStatus
       });
       showGeneratedImage(url);
