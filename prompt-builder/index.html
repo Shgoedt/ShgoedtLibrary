@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Character Prompt Builder</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <h1>Character Prompt Builder</h1>
+      <p class="subtitle">Select features to generate an image prompt automatically</p>
+    </div>
+    <div class="header-actions">
+      <button type="button" id="btnRandom" class="btn btn-secondary" title="Randomize all fields">Randomize</button>
+      <button type="button" id="btnReset" class="btn btn-ghost">Reset</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="panel" id="panel-body">
+      <h2 class="panel-title">Body &amp; Face</h2>
+      <div class="panel-content" id="bodyFields"></div>
+    </section>
+
+    <section class="panel" id="panel-style">
+      <h2 class="panel-title">Style &amp; Scene</h2>
+      <div class="panel-content" id="styleFields"></div>
+    </section>
+
+    <section class="panel" id="panel-outfit">
+      <h2 class="panel-title">Outfit &amp; Pose</h2>
+      <div class="panel-content">
+        <div class="field">
+          <label for="outfitCategory">Outfit category</label>
+          <select id="outfitCategory" name="outfitCategory"></select>
+        </div>
+        <div class="field">
+          <label for="outfitDetail">Outfit</label>
+          <select id="outfitDetail" name="outfitDetail"></select>
+        </div>
+        <div class="field">
+          <label for="customOutfit">Custom outfit <span class="hint">(overrides selector)</span></label>
+          <input type="text" id="customOutfit" placeholder="e.g. wearing a red silk robe">
+        </div>
+
+        <hr class="divider">
+
+        <div class="field field-checkbox">
+          <label>
+            <input type="checkbox" id="showNsfw">
+            Show NSFW pose options
+          </label>
+        </div>
+
+        <div class="field">
+          <label for="poseCategory">Pose category</label>
+          <select id="poseCategory" name="poseCategory"></select>
+        </div>
+        <div class="field">
+          <label for="poseDetail">Pose</label>
+          <select id="poseDetail" name="poseDetail"></select>
+        </div>
+        <div class="field">
+          <label for="customPose">Custom pose <span class="hint">(overrides selector)</span></label>
+          <input type="text" id="customPose" placeholder="e.g. sitting cross-legged">
+        </div>
+
+        <hr class="divider">
+
+        <div class="field field-checkbox">
+          <label>
+            <input type="checkbox" id="includeBodyDetails" checked>
+            Include breast &amp; butt size in prompt
+          </label>
+        </div>
+        <div class="field field-checkbox">
+          <label>
+            <input type="checkbox" id="includeShaved" checked>
+            Include shaved status in prompt
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel panel-output" id="panel-output">
+      <div class="output-header">
+        <h2 class="panel-title">Generated Prompt</h2>
+        <div class="output-actions">
+          <button type="button" id="btnRegenerate" class="btn btn-ghost btn-sm">Regenerate</button>
+          <button type="button" id="btnCopy" class="btn btn-primary btn-sm">Copy prompt</button>
+        </div>
+      </div>
+      <textarea id="promptOutput" rows="6" spellcheck="false" aria-label="Generated prompt"></textarea>
+
+      <div class="output-header output-header-secondary">
+        <h3>Negative Prompt</h3>
+        <button type="button" id="btnCopyNegative" class="btn btn-secondary btn-sm">Copy negative</button>
+      </div>
+      <textarea id="negativeOutput" rows="3" spellcheck="false" aria-label="Negative prompt"></textarea>
+
+      <div class="preset-section">
+        <h3>Presets</h3>
+        <div class="preset-row">
+          <input type="text" id="presetName" placeholder="Preset name" aria-label="Preset name">
+          <button type="button" id="btnSavePreset" class="btn btn-secondary btn-sm">Save</button>
+        </div>
+        <div class="preset-row">
+          <select id="presetList" aria-label="Saved presets">
+            <option value="">— Select preset —</option>
+          </select>
+          <button type="button" id="btnLoadPreset" class="btn btn-secondary btn-sm">Load</button>
+          <button type="button" id="btnDeletePreset" class="btn btn-ghost btn-sm">Delete</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>Runs entirely in your browser. State is saved to localStorage.</p>
+  </footer>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

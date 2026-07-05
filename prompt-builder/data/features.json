@@ -1,0 +1,264 @@
+{
+  "age": [
+    { "value": "18-22", "label": "18–22" },
+    { "value": "23-28", "label": "23–28" },
+    { "value": "29-35", "label": "29–35" },
+    { "value": "36-45", "label": "36–45" },
+    { "value": "mature", "label": "Mature (45+)" }
+  ],
+  "race": [
+    { "value": "unspecified", "label": "Unspecified" },
+    { "value": "caucasian", "label": "Caucasian" },
+    { "value": "asian", "label": "Asian" },
+    { "value": "black", "label": "Black" },
+    { "value": "latina", "label": "Latina" },
+    { "value": "middle_eastern", "label": "Middle Eastern" },
+    { "value": "south_asian", "label": "South Asian" },
+    { "value": "mixed", "label": "Mixed" }
+  ],
+  "physique": [
+    { "value": "petite", "label": "Petite" },
+    { "value": "slim", "label": "Slim" },
+    { "value": "athletic", "label": "Athletic" },
+    { "value": "curvy", "label": "Curvy" },
+    { "value": "voluptuous", "label": "Voluptuous" },
+    { "value": "muscular", "label": "Muscular" }
+  ],
+  "breastSize": [
+    { "value": "small", "label": "Small" },
+    { "value": "medium", "label": "Medium" },
+    { "value": "large", "label": "Large" },
+    { "value": "very_large", "label": "Very Large" }
+  ],
+  "buttSize": [
+    { "value": "small", "label": "Small" },
+    { "value": "medium", "label": "Medium" },
+    { "value": "large", "label": "Large" },
+    { "value": "very_large", "label": "Very Large" }
+  ],
+  "hairColor": [
+    { "value": "blonde", "label": "Blonde" },
+    { "value": "brunette", "label": "Brunette" },
+    { "value": "black", "label": "Black" },
+    { "value": "red", "label": "Red" },
+    { "value": "auburn", "label": "Auburn" },
+    { "value": "platinum", "label": "Platinum" },
+    { "value": "pink", "label": "Pink" },
+    { "value": "blue", "label": "Blue" },
+    { "value": "silver", "label": "Silver" }
+  ],
+  "hairLength": [
+    { "value": "bald", "label": "Bald" },
+    { "value": "short", "label": "Short" },
+    { "value": "shoulder", "label": "Shoulder-length" },
+    { "value": "long", "label": "Long" },
+    { "value": "very_long", "label": "Very Long" }
+  ],
+  "eyeColor": [
+    { "value": "brown", "label": "Brown" },
+    { "value": "blue", "label": "Blue" },
+    { "value": "green", "label": "Green" },
+    { "value": "hazel", "label": "Hazel" },
+    { "value": "gray", "label": "Gray" },
+    { "value": "amber", "label": "Amber" }
+  ],
+  "shaved": [
+    { "value": "fully_shaved", "label": "Fully shaved" },
+    { "value": "trimmed", "label": "Trimmed" },
+    { "value": "natural", "label": "Natural" },
+    { "value": "landing_strip", "label": "Landing strip" }
+  ],
+  "imageStyle": [
+    { "value": "photorealistic", "label": "Photorealistic" },
+    { "value": "cinematic", "label": "Cinematic" },
+    { "value": "studio_portrait", "label": "Studio Portrait" },
+    { "value": "fashion_editorial", "label": "Fashion Editorial" },
+    { "value": "anime", "label": "Anime" },
+    { "value": "3d_render", "label": "3D Render" },
+    { "value": "oil_painting", "label": "Oil Painting" },
+    { "value": "watercolor", "label": "Watercolor" }
+  ],
+  "lighting": [
+    { "value": "soft_natural", "label": "Soft natural light" },
+    { "value": "golden_hour", "label": "Golden hour" },
+    { "value": "studio_softbox", "label": "Studio softbox" },
+    { "value": "dramatic_rim", "label": "Dramatic rim light" },
+    { "value": "neon", "label": "Neon lighting" },
+    { "value": "candlelight", "label": "Candlelight" },
+    { "value": "overcast", "label": "Overcast diffuse" }
+  ],
+  "backdrop": [
+    { "value": "bedroom", "label": "Bedroom" },
+    { "value": "bathroom", "label": "Bathroom" },
+    { "value": "beach", "label": "Beach" },
+    { "value": "gym", "label": "Gym" },
+    { "value": "forest", "label": "Forest" },
+    { "value": "urban", "label": "Urban street" },
+    { "value": "hotel", "label": "Luxury hotel" },
+    { "value": "studio", "label": "Plain studio backdrop" },
+    { "value": "pool", "label": "Poolside" },
+    { "value": "kitchen", "label": "Kitchen" },
+    { "value": "office", "label": "Office" }
+  ],
+  "cameraAngle": [
+    { "value": "eye_level", "label": "Eye level" },
+    { "value": "low_angle", "label": "Low angle" },
+    { "value": "high_angle", "label": "High angle" },
+    { "value": "close_up", "label": "Close-up portrait" },
+    { "value": "full_body", "label": "Full body" },
+    { "value": "three_quarter", "label": "Three-quarter view" },
+    { "value": "from_behind", "label": "From behind" }
+  ],
+  "outfits": {
+    "nude": {
+      "label": "Nude",
+      "items": [
+        { "value": "fully_nude", "label": "Fully nude" },
+        { "value": "topless", "label": "Topless" },
+        { "value": "bottomless", "label": "Bottomless" },
+        { "value": "artistic_nude", "label": "Artistic nude" }
+      ]
+    },
+    "lingerie": {
+      "label": "Lingerie",
+      "items": [
+        { "value": "lace_bra_panties", "label": "Lace bra and panties" },
+        { "value": "bodysuit", "label": "Bodysuit" },
+        { "value": "garter_stockings", "label": "Garter belt and stockings" },
+        { "value": "negligee", "label": "Sheer negligee" },
+        { "value": "corset", "label": "Corset" },
+        { "value": "thong_bra", "label": "Thong and bra set" }
+      ]
+    },
+    "sports": {
+      "label": "Sports",
+      "items": [
+        { "value": "yoga_outfit", "label": "Yoga outfit" },
+        { "value": "gym_set", "label": "Gym leggings and sports bra" },
+        { "value": "tennis", "label": "Tennis outfit" },
+        { "value": "swimsuit", "label": "Swimsuit" },
+        { "value": "running_shorts", "label": "Running shorts and tank top" }
+      ]
+    },
+    "casual": {
+      "label": "Casual",
+      "items": [
+        { "value": "jeans_tshirt", "label": "Jeans and t-shirt" },
+        { "value": "summer_dress", "label": "Summer dress" },
+        { "value": "oversized_shirt", "label": "Oversized shirt" },
+        { "value": "shorts_crop_top", "label": "Shorts and crop top" },
+        { "value": "hoodie", "label": "Hoodie and leggings" }
+      ]
+    },
+    "formal": {
+      "label": "Formal",
+      "items": [
+        { "value": "evening_gown", "label": "Evening gown" },
+        { "value": "cocktail_dress", "label": "Cocktail dress" },
+        { "value": "business_suit", "label": "Business suit" },
+        { "value": "wedding_dress", "label": "Wedding dress" }
+      ]
+    },
+    "themed": {
+      "label": "Themed / Cosplay",
+      "items": [
+        { "value": "maid", "label": "Maid outfit" },
+        { "value": "nurse", "label": "Nurse outfit" },
+        { "value": "school_uniform", "label": "School uniform" },
+        { "value": "bunny", "label": "Bunny costume" },
+        { "value": "cheerleader", "label": "Cheerleader outfit" }
+      ]
+    }
+  },
+  "poses": {
+    "standing": {
+      "label": "Standing",
+      "nsfw": false,
+      "items": [
+        { "value": "standing_confident", "label": "Standing confidently" },
+        { "value": "hands_on_hips", "label": "Hands on hips" },
+        { "value": "leaning_wall", "label": "Leaning against wall" },
+        { "value": "arms_crossed", "label": "Arms crossed" },
+        { "value": "weight_one_leg", "label": "Weight on one leg" }
+      ]
+    },
+    "sitting": {
+      "label": "Sitting / Lying",
+      "nsfw": false,
+      "items": [
+        { "value": "sitting_chair", "label": "Sitting on chair" },
+        { "value": "sitting_bed", "label": "Sitting on bed" },
+        { "value": "lying_side", "label": "Lying on side" },
+        { "value": "lying_back_relaxed", "label": "Lying on back (relaxed)" },
+        { "value": "sitting_floor", "label": "Sitting on floor" }
+      ]
+    },
+    "action": {
+      "label": "Action",
+      "nsfw": false,
+      "items": [
+        { "value": "walking", "label": "Walking" },
+        { "value": "stretching", "label": "Stretching" },
+        { "value": "yoga_pose", "label": "Yoga pose" },
+        { "value": "running", "label": "Running" },
+        { "value": "dancing", "label": "Dancing" }
+      ]
+    },
+    "portrait": {
+      "label": "Portrait",
+      "nsfw": false,
+      "items": [
+        { "value": "looking_camera", "label": "Looking at camera" },
+        { "value": "profile", "label": "Profile view" },
+        { "value": "over_shoulder", "label": "Over-shoulder glance" },
+        { "value": "head_tilt", "label": "Head tilt, soft smile" },
+        { "value": "looking_away", "label": "Looking away" }
+      ]
+    },
+    "suggestive": {
+      "label": "Suggestive",
+      "nsfw": true,
+      "items": [
+        { "value": "lying_back", "label": "Lying on back" },
+        { "value": "on_all_fours", "label": "On all fours" },
+        { "value": "kneeling", "label": "Kneeling" },
+        { "value": "bent_over", "label": "Bent over" },
+        { "value": "spread_legs", "label": "Spread legs" },
+        { "value": "straddling", "label": "Straddling" },
+        { "value": "arching_back", "label": "Arching back" }
+      ]
+    },
+    "explicit": {
+      "label": "Explicit",
+      "nsfw": true,
+      "items": [
+        { "value": "masturbating", "label": "Masturbating" },
+        { "value": "spread_presentation", "label": "Presentation pose" },
+        { "value": "doggy_style", "label": "Doggy style position" },
+        { "value": "missionary", "label": "Missionary position" },
+        { "value": "riding", "label": "Riding position" }
+      ]
+    }
+  },
+  "qualityTags": [
+    "highly detailed",
+    "sharp focus",
+    "professional photography",
+    "8k uhd"
+  ],
+  "negativeDefaults": [
+    "low quality",
+    "blurry",
+    "deformed",
+    "extra limbs",
+    "bad anatomy",
+    "watermark",
+    "text",
+    "cropped",
+    "ugly",
+    "disfigured",
+    "poorly drawn face",
+    "mutation",
+    "extra fingers"
+  ]
+}
