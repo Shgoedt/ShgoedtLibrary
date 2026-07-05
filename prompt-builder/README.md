@@ -24,6 +24,14 @@ python3 -m http.server 8080
 
 Open [http://localhost:8080](http://localhost:8080)
 
+## Use on iPhone / iPad (GitHub Pages)
+
+After deployment, open this URL in Safari:
+
+**https://shgoedt.github.io/ShgoedtLibrary/**
+
+You can add it to your Home Screen via Safari → Share → **Add to Home Screen**.
+
 ### Option 2: Node.js
 
 ```bash
