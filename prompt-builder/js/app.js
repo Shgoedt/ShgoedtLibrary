@@ -278,6 +278,50 @@ function renderImageSettings() {
 
   $('#apiKey').value = loadApiKey();
   $('#imageSeed').value = state.imageSeed ?? -1;
+  updateApiKeyBadge();
+}
+
+function updateApiKeyBadge() {
+  const hasKey = Boolean(loadApiKey());
+  $('#apiKeySaved').hidden = !hasKey;
+}
+
+function setImageGenBusy(busy) {
+  $('#btnGenerateImage').disabled = busy;
+  $('#btnSuggestResolution').disabled = busy;
+  $('#apiKey').disabled = busy;
+  $('#imageResolution').disabled = busy;
+  $('#imageSeed').disabled = busy;
+
+  const btn = $('#btnGenerateImage');
+  if (busy) {
+    btn.dataset.originalLabel = btn.textContent;
+    btn.textContent = 'Generating…';
+  } else if (btn.dataset.originalLabel) {
+    btn.textContent = btn.dataset.originalLabel;
+  }
+}
+
+function setImageProgress({ phase, message, progress, active }) {
+  const wrap = $('#imageProgress');
+  const bar = $('#imageProgressBar');
+  const label = $('#imageProgressLabel');
+  const percent = $('#imageProgressPercent');
+  const track = wrap.querySelector('.image-progress-track');
+
+  wrap.hidden = !active;
+  if (!active) return;
+
+  const rounded = Math.round(progress);
+  label.textContent = message;
+  percent.textContent = `${rounded}%`;
+  bar.style.width = `${rounded}%`;
+  wrap.dataset.phase = phase;
+  track.setAttribute('aria-valuenow', String(rounded));
+}
+
+function hideImageProgress() {
+  $('#imageProgress').hidden = true;
 }
 
 function setImageStatus(message, isError = false) {
@@ -285,6 +329,7 @@ function setImageStatus(message, isError = false) {
   el.hidden = !message;
   el.textContent = message || '';
   el.classList.toggle('is-error', isError);
+  el.classList.toggle('is-success', !isError && Boolean(message));
 }
 
 function showGeneratedImage(url) {
@@ -296,14 +341,29 @@ function showGeneratedImage(url) {
 }
 
 function bindImageGeneration() {
+  if ($('#panel-output').dataset.imageGenBound) return;
+  $('#panel-output').dataset.imageGenBound = 'true';
+
   renderImageSettings();
 
+  let apiKeySaveTimer;
+
+  const persistApiKey = (value) => {
+    saveApiKey(value);
+    updateApiKeyBadge();
+  };
+
+  $('#apiKey').addEventListener('input', (e) => {
+    clearTimeout(apiKeySaveTimer);
+    apiKeySaveTimer = setTimeout(() => persistApiKey(e.target.value), 300);
+  });
+
   $('#apiKey').addEventListener('change', (e) => {
-    saveApiKey(e.target.value);
+    persistApiKey(e.target.value);
   });
 
   $('#apiKey').addEventListener('blur', (e) => {
-    saveApiKey(e.target.value);
+    persistApiKey(e.target.value);
   });
 
   $('#imageResolution').addEventListener('change', (e) => {
@@ -324,17 +384,17 @@ function bindImageGeneration() {
   });
 
   $('#btnGenerateImage').addEventListener('click', async () => {
-    const btn = $('#btnGenerateImage');
     const apiKey = $('#apiKey').value;
-    saveApiKey(apiKey);
+    persistApiKey(apiKey);
 
     const prompt = $('#promptOutput').value.trim();
     const resolution = $('#imageResolution').value;
     const seed = Number.parseInt($('#imageSeed').value, 10);
 
-    btn.disabled = true;
+    setImageGenBusy(true);
     $('#imageResult').hidden = true;
-    setImageStatus('Starting…');
+    setImageStatus('');
+    setImageProgress({ phase: 'submitting', message: 'Starting…', progress: 0, active: true });
 
     try {
       const { url } = await generateImage({
@@ -342,14 +402,17 @@ function bindImageGeneration() {
         prompt,
         resolution,
         seed: Number.isFinite(seed) ? seed : -1,
-        onStatus: setImageStatus
+        onProgress: setImageProgress
       });
       showGeneratedImage(url);
+      setImageProgress({ phase: 'complete', message: 'Complete', progress: 100, active: true });
       setImageStatus('Image generated successfully.');
+      setTimeout(hideImageProgress, 1200);
     } catch (err) {
+      hideImageProgress();
       setImageStatus(err.message, true);
     } finally {
-      btn.disabled = false;
+      setImageGenBusy(false);
     }
   });
 }

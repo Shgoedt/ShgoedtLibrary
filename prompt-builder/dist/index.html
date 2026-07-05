@@ -309,21 +309,29 @@ textarea {
 }
 
 .image-gen-section {
-  padding: 1rem;
   border-top: 1px solid var(--border);
 }
 
-.image-gen-section h3 {
-  margin: 0 0 0.5rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-muted);
+.image-gen-badge {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--accent);
+  background: var(--accent-dim);
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.image-gen-content {
+  padding: 0.75rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
 }
 
 .image-gen-note {
-  margin: 0 0 0.85rem;
+  margin: 0;
   font-size: 0.8rem;
   color: var(--text-muted);
   line-height: 1.5;
@@ -338,6 +346,30 @@ textarea {
   text-decoration: underline;
 }
 
+.api-key-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.api-key-row input {
+  flex: 1;
+  min-width: 0;
+}
+
+.api-key-badge {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6ee7a0;
+  background: rgba(110, 231, 160, 0.12);
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid rgba(110, 231, 160, 0.25);
+}
+
 .field-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -348,21 +380,92 @@ textarea {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+}
+
+.image-progress {
   margin-top: 0.25rem;
+  padding: 0.75rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
 }
 
-.image-status {
-  margin: 0.75rem 0 0;
+.image-progress-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.image-progress-label {
+  flex: 1;
   font-size: 0.85rem;
-  color: var(--accent);
+  color: var(--text);
 }
 
-.image-status.is-error {
+.image-progress-percent {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.image-progress-track {
+  height: 6px;
+  background: var(--surface-2);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.image-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+  border-radius: 999px;
+  transition: width 0.35s ease;
+}
+
+.image-progress[data-phase="complete"] .image-progress-bar {
+  background: linear-gradient(90deg, #6ee7a0, #34d399);
+}
+
+.image-progress-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+.image-progress[data-phase="complete"] .image-progress-spinner {
+  animation: none;
+  border-color: #6ee7a0;
+  border-top-color: #6ee7a0;
+  background: #6ee7a0;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.image-status-message {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.image-status-message.is-success {
+  color: #6ee7a0;
+}
+
+.image-status-message.is-error {
   color: var(--danger);
 }
 
 .image-result {
-  margin-top: 1rem;
+  margin-top: 0.25rem;
 }
 
 .image-result img {
@@ -534,35 +637,56 @@ textarea {
       <textarea id="negativeOutput" rows="3" spellcheck="false" aria-label="Negative prompt"></textarea>
 
       <div class="image-gen-section">
-        <h3>Generate Image <span class="hint">Z-Image Turbo (free)</span></h3>
-        <p class="image-gen-note">
-          Uses the free <a href="https://docs.sinancode.com/en/api-reference/endpoint/z-image-turbo-free" target="_blank" rel="noopener">SinanCode Z-Image Turbo API</a>.
-          Get a free API key at <a href="https://sinancode.com" target="_blank" rel="noopener">sinancode.com</a> — stored only in your browser.
-        </p>
-        <div class="field">
-          <label for="apiKey">SinanCode API key</label>
-          <input type="password" id="apiKey" placeholder="Paste your API key" autocomplete="off">
+        <div class="output-header output-header-secondary">
+          <h3>Generate Image</h3>
+          <span class="image-gen-badge">Z-Image Turbo</span>
         </div>
-        <div class="field-row">
+        <div class="image-gen-content">
+          <p class="image-gen-note">
+            Free via <a href="https://docs.sinancode.com/en/api-reference/endpoint/z-image-turbo-free" target="_blank" rel="noopener">SinanCode API</a>.
+            Get a key at <a href="https://sinancode.com" target="_blank" rel="noopener">sinancode.com</a>.
+          </p>
           <div class="field">
-            <label for="imageResolution">Resolution</label>
-            <select id="imageResolution" aria-label="Image resolution"></select>
+            <label for="apiKey">SinanCode API key</label>
+            <div class="api-key-row">
+              <input type="password" id="apiKey" placeholder="Paste your API key" autocomplete="off" spellcheck="false">
+              <span id="apiKeySaved" class="api-key-badge" hidden aria-live="polite">Saved locally</span>
+            </div>
           </div>
-          <div class="field">
-            <label for="imageSeed">Seed <span class="hint">(-1 = random)</span></label>
-            <input type="number" id="imageSeed" value="-1" min="-1" step="1">
+          <div class="field-row">
+            <div class="field">
+              <label for="imageResolution">Resolution</label>
+              <select id="imageResolution" aria-label="Image resolution"></select>
+            </div>
+            <div class="field">
+              <label for="imageSeed">Seed <span class="hint">(-1 = random)</span></label>
+              <input type="number" id="imageSeed" value="-1" min="-1" step="1">
+            </div>
           </div>
-        </div>
-        <div class="image-gen-actions">
-          <button type="button" id="btnGenerateImage" class="btn btn-primary">Generate image</button>
-          <button type="button" id="btnSuggestResolution" class="btn btn-ghost btn-sm">Match camera angle</button>
-        </div>
-        <p id="imageStatus" class="image-status" role="status" hidden></p>
-        <div id="imageResult" class="image-result" hidden>
-          <img id="generatedImage" alt="Generated image preview">
-          <div class="image-result-actions">
-            <a id="btnDownloadImage" class="btn btn-secondary btn-sm" download="character-prompt-builder.jpg">Download</a>
-            <button type="button" id="btnOpenImage" class="btn btn-ghost btn-sm">Open full size</button>
+          <div class="image-gen-actions">
+            <button type="button" id="btnGenerateImage" class="btn btn-primary">Generate image</button>
+            <button type="button" id="btnSuggestResolution" class="btn btn-ghost btn-sm">Match camera angle</button>
+          </div>
+
+          <div id="imageProgress" class="image-progress" hidden aria-live="polite">
+            <div class="image-progress-header">
+              <span class="image-progress-spinner" aria-hidden="true"></span>
+              <span id="imageProgressLabel" class="image-progress-label">Starting…</span>
+              <span id="imageProgressPercent" class="image-progress-percent">0%</span>
+            </div>
+            <div class="image-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+              <div id="imageProgressBar" class="image-progress-bar"></div>
+            </div>
+          </div>
+
+          <p id="imageStatus" class="image-status-message" role="status" hidden></p>
+
+          <div id="imageResult" class="image-result" hidden>
+            <img id="generatedImage" alt="Generated image preview">
+            <div class="image-result-actions">
+              <a id="btnDownloadImage" class="btn btn-secondary btn-sm" download="character-prompt-builder.jpg">Download</a>
+              <button type="button" id="btnOpenImage" class="btn btn-ghost btn-sm">Open full size</button>
+            </div>
           </div>
         </div>
       </div>
@@ -1314,7 +1438,7 @@ async function generateImage({
   prompt,
   resolution = '1024x1024',
   seed = -1,
-  onStatus
+  onProgress
 }) {
   if (!apiKey?.trim()) {
     throw new Error('Enter your SinanCode API key first (free at sinancode.com).');
@@ -1323,7 +1447,11 @@ async function generateImage({
     throw new Error('Prompt is empty — build a prompt first.');
   }
 
-  onStatus?.('Submitting to Z-Image Turbo…');
+  const report = (phase, message, progress) => {
+    onProgress?.({ phase, message, progress, active: true });
+  };
+
+  report('submitting', 'Submitting to Z-Image Turbo…', 8);
 
   const createRes = await fetch(`${API_BASE}${GENERATE_PATH}`, {
     method: 'POST',
@@ -1346,7 +1474,7 @@ async function generateImage({
   const { task_id: taskId } = await createRes.json();
   if (!taskId) throw new Error('No task ID returned from API.');
 
-  onStatus?.('Queued…');
+  report('queued', 'Queued — waiting for a slot…', 18);
 
   for (let attempt = 0; attempt < MAX_POLL_ATTEMPTS; attempt++) {
     await sleep(POLL_INTERVAL_MS);
@@ -1360,11 +1488,12 @@ async function generateImage({
     }
 
     const task = await statusRes.json();
+    const pollProgress = Math.min(attempt + 1, MAX_POLL_ATTEMPTS);
 
     if (task.status === 'completed') {
       const url = extractImageUrl(task.result);
       if (!url) throw new Error('Generation finished but no image URL was returned.');
-      onStatus?.('Complete');
+      onProgress?.({ phase: 'complete', message: 'Image ready', progress: 100, active: true });
       return { url, taskId };
     }
 
@@ -1372,8 +1501,13 @@ async function generateImage({
       throw new Error(task.error_msg || task.error_code || 'Image generation failed.');
     }
 
-    const label = task.status === 'processing' ? 'Generating image…' : 'Waiting in queue…';
-    onStatus?.(`${label} (${attempt + 1}/${MAX_POLL_ATTEMPTS})`);
+    if (task.status === 'processing') {
+      const progress = 35 + (pollProgress / MAX_POLL_ATTEMPTS) * 58;
+      report('processing', `Generating image… (${pollProgress}/${MAX_POLL_ATTEMPTS})`, progress);
+    } else {
+      const progress = 18 + (pollProgress / MAX_POLL_ATTEMPTS) * 15;
+      report('queued', `In queue… (${pollProgress}/${MAX_POLL_ATTEMPTS})`, progress);
+    }
   }
 
   throw new Error('Timed out — try again in a moment.');
@@ -1653,6 +1787,50 @@ function renderImageSettings() {
 
   $('#apiKey').value = loadApiKey();
   $('#imageSeed').value = state.imageSeed ?? -1;
+  updateApiKeyBadge();
+}
+
+function updateApiKeyBadge() {
+  const hasKey = Boolean(loadApiKey());
+  $('#apiKeySaved').hidden = !hasKey;
+}
+
+function setImageGenBusy(busy) {
+  $('#btnGenerateImage').disabled = busy;
+  $('#btnSuggestResolution').disabled = busy;
+  $('#apiKey').disabled = busy;
+  $('#imageResolution').disabled = busy;
+  $('#imageSeed').disabled = busy;
+
+  const btn = $('#btnGenerateImage');
+  if (busy) {
+    btn.dataset.originalLabel = btn.textContent;
+    btn.textContent = 'Generating…';
+  } else if (btn.dataset.originalLabel) {
+    btn.textContent = btn.dataset.originalLabel;
+  }
+}
+
+function setImageProgress({ phase, message, progress, active }) {
+  const wrap = $('#imageProgress');
+  const bar = $('#imageProgressBar');
+  const label = $('#imageProgressLabel');
+  const percent = $('#imageProgressPercent');
+  const track = wrap.querySelector('.image-progress-track');
+
+  wrap.hidden = !active;
+  if (!active) return;
+
+  const rounded = Math.round(progress);
+  label.textContent = message;
+  percent.textContent = `${rounded}%`;
+  bar.style.width = `${rounded}%`;
+  wrap.dataset.phase = phase;
+  track.setAttribute('aria-valuenow', String(rounded));
+}
+
+function hideImageProgress() {
+  $('#imageProgress').hidden = true;
 }
 
 function setImageStatus(message, isError = false) {
@@ -1660,6 +1838,7 @@ function setImageStatus(message, isError = false) {
   el.hidden = !message;
   el.textContent = message || '';
   el.classList.toggle('is-error', isError);
+  el.classList.toggle('is-success', !isError && Boolean(message));
 }
 
 function showGeneratedImage(url) {
@@ -1671,14 +1850,29 @@ function showGeneratedImage(url) {
 }
 
 function bindImageGeneration() {
+  if ($('#panel-output').dataset.imageGenBound) return;
+  $('#panel-output').dataset.imageGenBound = 'true';
+
   renderImageSettings();
 
+  let apiKeySaveTimer;
+
+  const persistApiKey = (value) => {
+    saveApiKey(value);
+    updateApiKeyBadge();
+  };
+
+  $('#apiKey').addEventListener('input', (e) => {
+    clearTimeout(apiKeySaveTimer);
+    apiKeySaveTimer = setTimeout(() => persistApiKey(e.target.value), 300);
+  });
+
   $('#apiKey').addEventListener('change', (e) => {
-    saveApiKey(e.target.value);
+    persistApiKey(e.target.value);
   });
 
   $('#apiKey').addEventListener('blur', (e) => {
-    saveApiKey(e.target.value);
+    persistApiKey(e.target.value);
   });
 
   $('#imageResolution').addEventListener('change', (e) => {
@@ -1699,17 +1893,17 @@ function bindImageGeneration() {
   });
 
   $('#btnGenerateImage').addEventListener('click', async () => {
-    const btn = $('#btnGenerateImage');
     const apiKey = $('#apiKey').value;
-    saveApiKey(apiKey);
+    persistApiKey(apiKey);
 
     const prompt = $('#promptOutput').value.trim();
     const resolution = $('#imageResolution').value;
     const seed = Number.parseInt($('#imageSeed').value, 10);
 
-    btn.disabled = true;
+    setImageGenBusy(true);
     $('#imageResult').hidden = true;
-    setImageStatus('Starting…');
+    setImageStatus('');
+    setImageProgress({ phase: 'submitting', message: 'Starting…', progress: 0, active: true });
 
     try {
       const { url } = await generateImage({
@@ -1717,14 +1911,17 @@ function bindImageGeneration() {
         prompt,
         resolution,
         seed: Number.isFinite(seed) ? seed : -1,
-        onStatus: setImageStatus
+        onProgress: setImageProgress
       });
       showGeneratedImage(url);
+      setImageProgress({ phase: 'complete', message: 'Complete', progress: 100, active: true });
       setImageStatus('Image generated successfully.');
+      setTimeout(hideImageProgress, 1200);
     } catch (err) {
+      hideImageProgress();
       setImageStatus(err.message, true);
     } finally {
-      btn.disabled = false;
+      setImageGenBusy(false);
     }
   });
 }

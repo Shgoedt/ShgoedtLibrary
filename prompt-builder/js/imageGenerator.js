@@ -60,7 +60,7 @@ export async function generateImage({
   prompt,
   resolution = '1024x1024',
   seed = -1,
-  onStatus
+  onProgress
 }) {
   if (!apiKey?.trim()) {
     throw new Error('Enter your SinanCode API key first (free at sinancode.com).');
@@ -69,7 +69,11 @@ export async function generateImage({
     throw new Error('Prompt is empty — build a prompt first.');
   }
 
-  onStatus?.('Submitting to Z-Image Turbo…');
+  const report = (phase, message, progress) => {
+    onProgress?.({ phase, message, progress, active: true });
+  };
+
+  report('submitting', 'Submitting to Z-Image Turbo…', 8);
 
   const createRes = await fetch(`${API_BASE}${GENERATE_PATH}`, {
     method: 'POST',
@@ -92,7 +96,7 @@ export async function generateImage({
   const { task_id: taskId } = await createRes.json();
   if (!taskId) throw new Error('No task ID returned from API.');
 
-  onStatus?.('Queued…');
+  report('queued', 'Queued — waiting for a slot…', 18);
 
   for (let attempt = 0; attempt < MAX_POLL_ATTEMPTS; attempt++) {
     await sleep(POLL_INTERVAL_MS);
@@ -106,11 +110,12 @@ export async function generateImage({
     }
 
     const task = await statusRes.json();
+    const pollProgress = Math.min(attempt + 1, MAX_POLL_ATTEMPTS);
 
     if (task.status === 'completed') {
       const url = extractImageUrl(task.result);
       if (!url) throw new Error('Generation finished but no image URL was returned.');
-      onStatus?.('Complete');
+      onProgress?.({ phase: 'complete', message: 'Image ready', progress: 100, active: true });
       return { url, taskId };
     }
 
@@ -118,8 +123,13 @@ export async function generateImage({
       throw new Error(task.error_msg || task.error_code || 'Image generation failed.');
     }
 
-    const label = task.status === 'processing' ? 'Generating image…' : 'Waiting in queue…';
-    onStatus?.(`${label} (${attempt + 1}/${MAX_POLL_ATTEMPTS})`);
+    if (task.status === 'processing') {
+      const progress = 35 + (pollProgress / MAX_POLL_ATTEMPTS) * 58;
+      report('processing', `Generating image… (${pollProgress}/${MAX_POLL_ATTEMPTS})`, progress);
+    } else {
+      const progress = 18 + (pollProgress / MAX_POLL_ATTEMPTS) * 15;
+      report('queued', `In queue… (${pollProgress}/${MAX_POLL_ATTEMPTS})`, progress);
+    }
   }
 
   throw new Error('Timed out — try again in a moment.');
