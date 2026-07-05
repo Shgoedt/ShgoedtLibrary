@@ -285,6 +285,19 @@ textarea {
   margin: 0;
 }
 
+.footer-link {
+  margin-top: 0.5rem;
+}
+
+.footer-link a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.footer-link a:hover {
+  text-decoration: underline;
+}
+
 .error-banner {
   max-width: 600px;
   margin: 4rem auto;

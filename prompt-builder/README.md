@@ -24,13 +24,27 @@ python3 -m http.server 8080
 
 Open [http://localhost:8080](http://localhost:8080)
 
-## Use on iPhone / iPad (GitHub Pages)
+## Use on iPhone / iPad
 
-After deployment, open this URL in Safari:
+### Instant preview (no setup)
 
-**https://shgoedt.github.io/ShgoedtLibrary/**
+Open this link in **Safari** on your iPhone or iPad:
 
-You can add it to your Home Screen via Safari → Share → **Add to Home Screen**.
+**https://cdn.jsdelivr.net/gh/Shgoedt/ShgoedtLibrary@master/prompt-builder/index.html**
+
+Add to Home Screen: Safari → Share → **Add to Home Screen**.
+
+### Official GitHub Pages (recommended)
+
+One-time setup in your repo:
+
+1. Go to **Settings → Pages**
+2. Under **Build and deployment**, set **Source** to **GitHub Actions**
+3. Re-run the **Deploy Prompt Builder** workflow (Actions tab)
+
+Live URL: **https://shgoedt.github.io/ShgoedtLibrary/**
+
+Alternatively, set Source to **Deploy from branch** → `gh-pages` / `/ (root)` after the **Deploy to gh-pages branch** workflow runs.
 
 ### Option 2: Node.js
 
