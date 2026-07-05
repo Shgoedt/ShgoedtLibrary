@@ -308,6 +308,83 @@ textarea {
   text-decoration: underline;
 }
 
+.image-gen-section {
+  padding: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.image-gen-section h3 {
+  margin: 0 0 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.image-gen-note {
+  margin: 0 0 0.85rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.image-gen-note a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.image-gen-note a:hover {
+  text-decoration: underline;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+}
+
+.image-gen-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.image-status {
+  margin: 0.75rem 0 0;
+  font-size: 0.85rem;
+  color: var(--accent);
+}
+
+.image-status.is-error {
+  color: var(--danger);
+}
+
+.image-result {
+  margin-top: 1rem;
+}
+
+.image-result img {
+  display: block;
+  width: 100%;
+  max-width: 512px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.image-result-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.65rem;
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .error-banner {
   max-width: 600px;
   margin: 4rem auto;
@@ -353,6 +430,10 @@ textarea {
 
   .preset-row {
     flex-wrap: wrap;
+  }
+
+  .field-row {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -451,6 +532,40 @@ textarea {
         <button type="button" id="btnCopyNegative" class="btn btn-secondary btn-sm">Copy negative</button>
       </div>
       <textarea id="negativeOutput" rows="3" spellcheck="false" aria-label="Negative prompt"></textarea>
+
+      <div class="image-gen-section">
+        <h3>Generate Image <span class="hint">Z-Image Turbo (free)</span></h3>
+        <p class="image-gen-note">
+          Uses the free <a href="https://docs.sinancode.com/en/api-reference/endpoint/z-image-turbo-free" target="_blank" rel="noopener">SinanCode Z-Image Turbo API</a>.
+          Get a free API key at <a href="https://sinancode.com" target="_blank" rel="noopener">sinancode.com</a> — stored only in your browser.
+        </p>
+        <div class="field">
+          <label for="apiKey">SinanCode API key</label>
+          <input type="password" id="apiKey" placeholder="Paste your API key" autocomplete="off">
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="imageResolution">Resolution</label>
+            <select id="imageResolution" aria-label="Image resolution"></select>
+          </div>
+          <div class="field">
+            <label for="imageSeed">Seed <span class="hint">(-1 = random)</span></label>
+            <input type="number" id="imageSeed" value="-1" min="-1" step="1">
+          </div>
+        </div>
+        <div class="image-gen-actions">
+          <button type="button" id="btnGenerateImage" class="btn btn-primary">Generate image</button>
+          <button type="button" id="btnSuggestResolution" class="btn btn-ghost btn-sm">Match camera angle</button>
+        </div>
+        <p id="imageStatus" class="image-status" role="status" hidden></p>
+        <div id="imageResult" class="image-result" hidden>
+          <img id="generatedImage" alt="Generated image preview">
+          <div class="image-result-actions">
+            <a id="btnDownloadImage" class="btn btn-secondary btn-sm" download="character-prompt-builder.jpg">Download</a>
+            <button type="button" id="btnOpenImage" class="btn btn-ghost btn-sm">Open full size</button>
+          </div>
+        </div>
+      </div>
 
       <div class="preset-section">
         <h3>Presets</h3>
@@ -969,7 +1084,9 @@ const defaultState = {
   includeShaved: true,
   includeBodyDetails: true,
   customOutfit: '',
-  customPose: ''
+  customPose: '',
+  imageResolution: '1024x1024',
+  nsfwThreshold: 0.5
 };
 
 function loadState() {
@@ -1136,12 +1253,149 @@ function randomizeState(state, features, { nsfw = false } = {}) {
   };
 }
 
+const API_BASE = 'https://api.sinancode.com/v1';
+const GENERATE_PATH = '/generate/hf/z-image-turbo';
+const POLL_INTERVAL_MS = 2000;
+const MAX_POLL_ATTEMPTS = 120;
+
+const RESOLUTIONS = [
+  { value: '1024x1024', label: 'Square 1:1 (1024×1024)' },
+  { value: '1280x720', label: 'Landscape 16:9 (1280×720)' },
+  { value: '720x1280', label: 'Portrait 9:16 (720×1280)' },
+  { value: '896x1152', label: 'Portrait 3:4 (896×1152)' },
+  { value: '1152x896', label: 'Landscape 4:3 (1152×896)' },
+  { value: '1280x1280', label: 'Large square (1280×1280)' },
+  { value: '1536x1024', label: 'Wide 3:2 (1536×1024)' }
+];
+
+const API_KEY_STORAGE = 'prompt-builder-sinancode-api-key';
+
+function loadApiKey() {
+  return localStorage.getItem(API_KEY_STORAGE) || '';
+}
+
+function saveApiKey(key) {
+  if (key?.trim()) {
+    localStorage.setItem(API_KEY_STORAGE, key.trim());
+  } else {
+    localStorage.removeItem(API_KEY_STORAGE);
+  }
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function extractImageUrl(result) {
+  if (!result?.length) return null;
+  const first = result[0];
+  return typeof first === 'string' ? first : first?.url;
+}
+
+async function parseError(response) {
+  try {
+    const data = await response.json();
+    return data.message || data.error_msg || data.error_code || `HTTP ${response.status}`;
+  } catch {
+    return `HTTP ${response.status}`;
+  }
+}
+
+function suggestResolution(cameraAngle) {
+  const portrait = new Set(['full_body', 'three_quarter', 'close_up', 'eye_level']);
+  const landscape = new Set(['low_angle', 'high_angle']);
+  if (cameraAngle === 'from_behind') return '896x1152';
+  if (portrait.has(cameraAngle)) return '720x1280';
+  if (landscape.has(cameraAngle)) return '1280x720';
+  return '1024x1024';
+}
+
+async function generateImage({
+  apiKey,
+  prompt,
+  resolution = '1024x1024',
+  seed = -1,
+  nsfwThreshold = 0.5,
+  onStatus
+}) {
+  if (!apiKey?.trim()) {
+    throw new Error('Enter your SinanCode API key first (free at sinancode.com).');
+  }
+  if (!prompt?.trim()) {
+    throw new Error('Prompt is empty — build a prompt first.');
+  }
+
+  onStatus?.('Submitting to Z-Image Turbo…');
+
+  const createRes = await fetch(`${API_BASE}${GENERATE_PATH}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${apiKey.trim()}`
+    },
+    body: JSON.stringify({
+      prompt: prompt.trim(),
+      resolution,
+      num_images: 1,
+      seed,
+      nsfw_threshold: nsfwThreshold
+    })
+  });
+
+  if (!createRes.ok) {
+    throw new Error(await parseError(createRes));
+  }
+
+  const { task_id: taskId } = await createRes.json();
+  if (!taskId) throw new Error('No task ID returned from API.');
+
+  onStatus?.('Queued…');
+
+  for (let attempt = 0; attempt < MAX_POLL_ATTEMPTS; attempt++) {
+    await sleep(POLL_INTERVAL_MS);
+
+    const statusRes = await fetch(`${API_BASE}/tasks/${taskId}`, {
+      headers: { Authorization: `Bearer ${apiKey.trim()}` }
+    });
+
+    if (!statusRes.ok) {
+      throw new Error(await parseError(statusRes));
+    }
+
+    const task = await statusRes.json();
+
+    if (task.status === 'completed') {
+      const url = extractImageUrl(task.result);
+      if (!url) throw new Error('Generation finished but no image URL was returned.');
+      onStatus?.('Complete');
+      return { url, taskId };
+    }
+
+    if (task.status === 'failed') {
+      throw new Error(task.error_msg || task.error_code || 'Image generation failed.');
+    }
+
+    const label = task.status === 'processing' ? 'Generating image…' : 'Waiting in queue…';
+    onStatus?.(`${label} (${attempt + 1}/${MAX_POLL_ATTEMPTS})`);
+  }
+
+  throw new Error('Timed out — try again in a moment.');
+}
+
+import {
+  generateImage,
+  loadApiKey,
+  saveApiKey,
+  RESOLUTIONS,
+  suggestResolution
+} from './imageGenerator.js';
 
 let features = null;
 let templates = null;
 let state = loadState();
 let promptEdited = false;
 let negativeEdited = false;
+let lastImageUrl = null;
 
 const FIELD_LABELS = {
   age: 'Age',
@@ -1386,6 +1640,97 @@ function bindGlobalControls() {
   $('#btnDeletePreset').addEventListener('click', deletePreset);
 
   refreshPresetList();
+  bindImageGeneration();
+}
+
+function renderImageSettings() {
+  const resolutionSelect = $('#imageResolution');
+  resolutionSelect.innerHTML = '';
+  for (const res of RESOLUTIONS) {
+    const opt = document.createElement('option');
+    opt.value = res.value;
+    opt.textContent = res.label;
+    if (res.value === state.imageResolution) opt.selected = true;
+    resolutionSelect.appendChild(opt);
+  }
+
+  $('#apiKey').value = loadApiKey();
+  $('#imageSeed').value = state.imageSeed ?? -1;
+}
+
+function setImageStatus(message, isError = false) {
+  const el = $('#imageStatus');
+  el.hidden = !message;
+  el.textContent = message || '';
+  el.classList.toggle('is-error', isError);
+}
+
+function showGeneratedImage(url) {
+  lastImageUrl = url;
+  const img = $('#generatedImage');
+  img.src = url;
+  $('#btnDownloadImage').href = url;
+  $('#imageResult').hidden = false;
+}
+
+function bindImageGeneration() {
+  renderImageSettings();
+
+  $('#apiKey').addEventListener('change', (e) => {
+    saveApiKey(e.target.value);
+  });
+
+  $('#apiKey').addEventListener('blur', (e) => {
+    saveApiKey(e.target.value);
+  });
+
+  $('#imageResolution').addEventListener('change', (e) => {
+    state.imageResolution = e.target.value;
+    saveState(state);
+  });
+
+  $('#btnSuggestResolution').addEventListener('click', () => {
+    const suggested = suggestResolution(state.cameraAngle);
+    state.imageResolution = suggested;
+    $('#imageResolution').value = suggested;
+    saveState(state);
+    setImageStatus(`Resolution set to ${suggested} for ${state.cameraAngle.replace(/_/g, ' ')}.`);
+  });
+
+  $('#btnOpenImage').addEventListener('click', () => {
+    if (lastImageUrl) window.open(lastImageUrl, '_blank', 'noopener');
+  });
+
+  $('#btnGenerateImage').addEventListener('click', async () => {
+    const btn = $('#btnGenerateImage');
+    const apiKey = $('#apiKey').value;
+    saveApiKey(apiKey);
+
+    const prompt = $('#promptOutput').value.trim();
+    const resolution = $('#imageResolution').value;
+    const seed = Number.parseInt($('#imageSeed').value, 10);
+
+    btn.disabled = true;
+    $('#imageResult').hidden = true;
+    setImageStatus('Starting…');
+
+    try {
+      const { url } = await generateImage({
+        apiKey,
+        prompt,
+        resolution,
+        seed: Number.isFinite(seed) ? seed : -1,
+        nsfwThreshold: state.nsfwThreshold ?? 0.5,
+        onStatus: setImageStatus
+      });
+      showGeneratedImage(url);
+      setImageStatus('Image generated successfully.');
+    } catch (err) {
+      setImageStatus(err.message, true);
+    } finally {
+      btn.disabled = false;
+    }
+  });
 }
 
 async function copyText(text, btnSelector) {
@@ -1459,6 +1804,7 @@ function initUI() {
   renderOutfitFields();
   renderPoseFields();
   renderToggles();
+  renderImageSettings();
 }
 
 async function main() {

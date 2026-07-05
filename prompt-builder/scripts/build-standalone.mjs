@@ -25,6 +25,7 @@ const templates = read('data/templates.json');
 const css = read('styles.css');
 const stateJs = stripExports(read('js/state.js'));
 const engineJs = stripExports(read('js/promptEngine.js'));
+const imageGenJs = stripExports(read('js/imageGenerator.js'));
 
 const appJs = read('js/app.js')
   .replace(/^import .+;\n/gm, '')
@@ -49,6 +50,7 @@ const TEMPLATES = ${templates};
 <script>
 ${stateJs}
 ${engineJs}
+${imageGenJs}
 ${appJs}
 </script>`
   );
