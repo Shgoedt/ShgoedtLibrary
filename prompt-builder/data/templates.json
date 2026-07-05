@@ -1,0 +1,201 @@
+{
+  "age": {
+    "18-22": "young woman in her early twenties",
+    "23-28": "woman in her mid-twenties",
+    "29-35": "woman in her early thirties",
+    "36-45": "woman in her late thirties to forties",
+    "mature": "mature woman"
+  },
+  "race": {
+    "unspecified": "",
+    "caucasian": "caucasian",
+    "asian": "asian",
+    "black": "black",
+    "latina": "latina",
+    "middle_eastern": "middle eastern",
+    "south_asian": "south asian",
+    "mixed": "mixed ethnicity"
+  },
+  "physique": {
+    "petite": "petite build",
+    "slim": "slim build",
+    "athletic": "athletic build",
+    "curvy": "curvy build",
+    "voluptuous": "voluptuous figure",
+    "muscular": "muscular build"
+  },
+  "breastSize": {
+    "small": "small breasts",
+    "medium": "medium breasts",
+    "large": "large breasts",
+    "very_large": "very large breasts"
+  },
+  "buttSize": {
+    "small": "small butt",
+    "medium": "medium butt",
+    "large": "large butt",
+    "very_large": "very large butt"
+  },
+  "hairColor": {
+    "blonde": "blonde",
+    "brunette": "brunette",
+    "black": "black",
+    "red": "red",
+    "auburn": "auburn",
+    "platinum": "platinum blonde",
+    "pink": "pink",
+    "blue": "blue",
+    "silver": "silver"
+  },
+  "hairLength": {
+    "bald": "bald",
+    "short": "short",
+    "shoulder": "shoulder-length",
+    "long": "long",
+    "very_long": "very long"
+  },
+  "eyeColor": {
+    "brown": "brown eyes",
+    "blue": "blue eyes",
+    "green": "green eyes",
+    "hazel": "hazel eyes",
+    "gray": "gray eyes",
+    "amber": "amber eyes"
+  },
+  "shaved": {
+    "fully_shaved": "fully shaved",
+    "trimmed": "trimmed",
+    "natural": "natural pubic hair",
+    "landing_strip": "landing strip"
+  },
+  "imageStyle": {
+    "photorealistic": "photorealistic",
+    "cinematic": "cinematic",
+    "studio_portrait": "studio portrait",
+    "fashion_editorial": "fashion editorial",
+    "anime": "anime style",
+    "3d_render": "3D render",
+    "oil_painting": "oil painting",
+    "watercolor": "watercolor"
+  },
+  "lighting": {
+    "soft_natural": "soft natural lighting",
+    "golden_hour": "golden hour lighting",
+    "studio_softbox": "studio softbox lighting",
+    "dramatic_rim": "dramatic rim lighting",
+    "neon": "neon lighting",
+    "candlelight": "warm candlelight",
+    "overcast": "overcast diffuse lighting"
+  },
+  "backdrop": {
+    "bedroom": "in a cozy bedroom",
+    "bathroom": "in a modern bathroom",
+    "beach": "on a sunny beach",
+    "gym": "in a gym",
+    "forest": "in a lush forest",
+    "urban": "on an urban street",
+    "hotel": "in a luxury hotel room",
+    "studio": "against a plain studio backdrop",
+    "pool": "poolside",
+    "kitchen": "in a kitchen",
+    "office": "in an office"
+  },
+  "cameraAngle": {
+    "eye_level": "eye level shot",
+    "low_angle": "low angle shot",
+    "high_angle": "high angle shot",
+    "close_up": "close-up portrait",
+    "full_body": "full body shot",
+    "three_quarter": "three-quarter view",
+    "from_behind": "shot from behind"
+  },
+  "outfits": {
+    "nude": {
+      "fully_nude": "fully nude",
+      "topless": "topless",
+      "bottomless": "bottomless",
+      "artistic_nude": "artistic nude"
+    },
+    "lingerie": {
+      "lace_bra_panties": "wearing lace bra and panties",
+      "bodysuit": "wearing a lace bodysuit",
+      "garter_stockings": "wearing garter belt and stockings",
+      "negligee": "wearing a sheer negligee",
+      "corset": "wearing a corset",
+      "thong_bra": "wearing a thong and bra set"
+    },
+    "sports": {
+      "yoga_outfit": "wearing a yoga outfit",
+      "gym_set": "wearing gym leggings and sports bra",
+      "tennis": "wearing a tennis outfit",
+      "swimsuit": "wearing a swimsuit",
+      "running_shorts": "wearing running shorts and tank top"
+    },
+    "casual": {
+      "jeans_tshirt": "wearing jeans and a t-shirt",
+      "summer_dress": "wearing a summer dress",
+      "oversized_shirt": "wearing an oversized shirt",
+      "shorts_crop_top": "wearing shorts and a crop top",
+      "hoodie": "wearing a hoodie and leggings"
+    },
+    "formal": {
+      "evening_gown": "wearing an evening gown",
+      "cocktail_dress": "wearing a cocktail dress",
+      "business_suit": "wearing a business suit",
+      "wedding_dress": "wearing a wedding dress"
+    },
+    "themed": {
+      "maid": "wearing a maid outfit",
+      "nurse": "wearing a nurse outfit",
+      "school_uniform": "wearing a school uniform",
+      "bunny": "wearing a bunny costume",
+      "cheerleader": "wearing a cheerleader outfit"
+    }
+  },
+  "poses": {
+    "standing": {
+      "standing_confident": "standing confidently",
+      "hands_on_hips": "hands on hips",
+      "leaning_wall": "leaning against a wall",
+      "arms_crossed": "arms crossed",
+      "weight_one_leg": "standing with weight on one leg"
+    },
+    "sitting": {
+      "sitting_chair": "sitting on a chair",
+      "sitting_bed": "sitting on a bed",
+      "lying_side": "lying on her side",
+      "lying_back_relaxed": "lying on her back relaxed",
+      "sitting_floor": "sitting on the floor"
+    },
+    "action": {
+      "walking": "walking",
+      "stretching": "stretching",
+      "yoga_pose": "in a yoga pose",
+      "running": "running",
+      "dancing": "dancing"
+    },
+    "portrait": {
+      "looking_camera": "looking at the camera",
+      "profile": "profile view",
+      "over_shoulder": "glancing over shoulder",
+      "head_tilt": "head tilt with soft smile",
+      "looking_away": "looking away"
+    },
+    "suggestive": {
+      "lying_back": "lying on her back",
+      "on_all_fours": "on all fours",
+      "kneeling": "kneeling",
+      "bent_over": "bent over",
+      "spread_legs": "legs spread",
+      "straddling": "straddling",
+      "arching_back": "arching her back"
+    },
+    "explicit": {
+      "masturbating": "masturbating",
+      "spread_presentation": "presentation pose",
+      "doggy_style": "in doggy style position",
+      "missionary": "in missionary position",
+      "riding": "in riding position"
+    }
+  }
+}
