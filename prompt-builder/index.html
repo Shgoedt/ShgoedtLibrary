@@ -106,15 +106,15 @@
       <div class="image-gen-section">
         <div class="output-header output-header-secondary">
           <h3>Generate Image</h3>
-          <span class="image-gen-badge">Z-Image Turbo</span>
+          <span class="image-gen-badge">Uncensored</span>
         </div>
         <div class="image-gen-content">
           <p class="image-gen-note">
-            Free via <a href="https://docs.sinancode.com/en/api-reference/endpoint/z-image-turbo-free" target="_blank" rel="noopener">SinanCode API</a>.
-            Get a key at <a href="https://sinancode.com" target="_blank" rel="noopener">sinancode.com</a>.
+            Uses the <a href="https://kwikiai.com/guides/nsfw-ai-api" target="_blank" rel="noopener">Kwiki AI uncensored API</a> (5 free credits/day).
+            Get a key at <a href="https://kwikiai.com/account" target="_blank" rel="noopener">kwikiai.com</a>.
           </p>
           <div class="field">
-            <label for="apiKey">SinanCode API key</label>
+            <label for="apiKey">Kwiki AI API key</label>
             <div class="api-key-row">
               <input type="password" id="apiKey" placeholder="Paste your API key" autocomplete="off" spellcheck="false">
               <span id="apiKeySaved" class="api-key-badge" hidden aria-live="polite">Saved locally</span>
@@ -122,17 +122,17 @@
           </div>
           <div class="field-row">
             <div class="field">
-              <label for="imageResolution">Resolution</label>
-              <select id="imageResolution" aria-label="Image resolution"></select>
+              <label for="imageStyleGen">Generation style</label>
+              <select id="imageStyleGen" aria-label="Generation style"></select>
             </div>
             <div class="field">
-              <label for="imageSeed">Seed <span class="hint">(-1 = random)</span></label>
-              <input type="number" id="imageSeed" value="-1" min="-1" step="1">
+              <label for="imageQuality">Quality</label>
+              <select id="imageQuality" aria-label="Image quality"></select>
             </div>
           </div>
           <div class="image-gen-actions">
             <button type="button" id="btnGenerateImage" class="btn btn-primary">Generate image</button>
-            <button type="button" id="btnSuggestResolution" class="btn btn-ghost btn-sm">Match camera angle</button>
+            <button type="button" id="btnSuggestStyle" class="btn btn-ghost btn-sm">Match image style</button>
           </div>
 
           <div id="imageProgress" class="image-progress" hidden aria-live="polite">

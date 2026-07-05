@@ -1,22 +1,23 @@
-const API_BASE = 'https://api.sinancode.com/v1';
-const GENERATE_PATH = '/generate/hf/z-image-turbo';
-const POLL_INTERVAL_MS = 2000;
-const MAX_POLL_ATTEMPTS = 120;
+const API_BASE = 'https://kwikiai.com/api/v1';
+const GENERATE_PATH = '/generate';
+const LEGACY_API_KEY_STORAGE = 'prompt-builder-sinancode-api-key';
+const API_KEY_STORAGE = 'prompt-builder-kwiki-api-key';
 
-export const RESOLUTIONS = [
-  { value: '1024x1024', label: 'Square 1:1 (1024×1024)' },
-  { value: '1280x720', label: 'Landscape 16:9 (1280×720)' },
-  { value: '720x1280', label: 'Portrait 9:16 (720×1280)' },
-  { value: '896x1152', label: 'Portrait 3:4 (896×1152)' },
-  { value: '1152x896', label: 'Landscape 4:3 (1152×896)' },
-  { value: '1280x1280', label: 'Large square (1280×1280)' },
-  { value: '1536x1024', label: 'Wide 3:2 (1536×1024)' }
+export const STYLES = [
+  { value: 'realistic', label: 'Realistic' },
+  { value: 'anime', label: 'Anime' },
+  { value: 'nude', label: 'Nude' }
 ];
 
-const API_KEY_STORAGE = 'prompt-builder-sinancode-api-key';
+export const QUALITIES = [
+  { value: 'fast', label: 'Fast (1 credit)' },
+  { value: 'hires', label: 'Hi-res (2 credits)' }
+];
 
 export function loadApiKey() {
-  return localStorage.getItem(API_KEY_STORAGE) || '';
+  return localStorage.getItem(API_KEY_STORAGE)
+    || localStorage.getItem(LEGACY_API_KEY_STORAGE)
+    || '';
 }
 
 export function saveApiKey(key) {
@@ -27,110 +28,99 @@ export function saveApiKey(key) {
   }
 }
 
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-function extractImageUrl(result) {
-  if (!result?.length) return null;
-  const first = result[0];
-  return typeof first === 'string' ? first : first?.url;
-}
-
 async function parseError(response) {
   try {
     const data = await response.json();
-    return data.message || data.error_msg || data.error_code || `HTTP ${response.status}`;
+    return data.error || data.message || data.detail || `HTTP ${response.status}`;
   } catch {
     return `HTTP ${response.status}`;
   }
 }
 
-export function suggestResolution(cameraAngle) {
-  const portrait = new Set(['full_body', 'three_quarter', 'close_up', 'eye_level']);
-  const landscape = new Set(['low_angle', 'high_angle']);
-  if (cameraAngle === 'from_behind') return '896x1152';
-  if (portrait.has(cameraAngle)) return '720x1280';
-  if (landscape.has(cameraAngle)) return '1280x720';
-  return '1024x1024';
+export function suggestStyle(imageStyle, outfitCategory) {
+  if (imageStyle === 'anime') return 'anime';
+  if (outfitCategory === 'nude') return 'nude';
+  return 'realistic';
+}
+
+function startProgressTicker(onProgress, start = 12, cap = 92) {
+  let progress = start;
+  onProgress?.({
+    phase: 'processing',
+    message: 'Generating image… this can take up to 90 seconds',
+    progress,
+    active: true
+  });
+
+  return setInterval(() => {
+    progress = Math.min(cap, progress + (progress < 50 ? 2 : 1));
+    onProgress?.({
+      phase: 'processing',
+      message: 'Generating image… this can take up to 90 seconds',
+      progress,
+      active: true
+    });
+  }, 1200);
 }
 
 export async function generateImage({
   apiKey,
   prompt,
-  resolution = '1024x1024',
-  seed = -1,
+  style = 'realistic',
+  quality = 'fast',
   onProgress
 }) {
   if (!apiKey?.trim()) {
-    throw new Error('Enter your SinanCode API key first (free at sinancode.com).');
+    throw new Error('Enter your Kwiki AI API key first (free at kwikiai.com).');
   }
   if (!prompt?.trim()) {
     throw new Error('Prompt is empty — build a prompt first.');
   }
 
-  const report = (phase, message, progress) => {
-    onProgress?.({ phase, message, progress, active: true });
-  };
-
-  report('submitting', 'Submitting to Z-Image Turbo…', 8);
-
-  const createRes = await fetch(`${API_BASE}${GENERATE_PATH}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey.trim()}`
-    },
-    body: JSON.stringify({
-      prompt: prompt.trim(),
-      resolution,
-      num_images: 1,
-      seed
-    })
+  onProgress?.({
+    phase: 'submitting',
+    message: 'Submitting to Kwiki AI…',
+    progress: 8,
+    active: true
   });
 
-  if (!createRes.ok) {
-    throw new Error(await parseError(createRes));
-  }
+  const ticker = startProgressTicker(onProgress);
 
-  const { task_id: taskId } = await createRes.json();
-  if (!taskId) throw new Error('No task ID returned from API.');
-
-  report('queued', 'Queued — waiting for a slot…', 18);
-
-  for (let attempt = 0; attempt < MAX_POLL_ATTEMPTS; attempt++) {
-    await sleep(POLL_INTERVAL_MS);
-
-    const statusRes = await fetch(`${API_BASE}/tasks/${taskId}`, {
-      headers: { Authorization: `Bearer ${apiKey.trim()}` }
+  try {
+    const response = await fetch(`${API_BASE}${GENERATE_PATH}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey.trim()}`
+      },
+      body: JSON.stringify({
+        prompt: prompt.trim(),
+        style,
+        quality
+      })
     });
 
-    if (!statusRes.ok) {
-      throw new Error(await parseError(statusRes));
+    clearInterval(ticker);
+
+    if (!response.ok) {
+      throw new Error(await parseError(response));
     }
 
-    const task = await statusRes.json();
-    const pollProgress = Math.min(attempt + 1, MAX_POLL_ATTEMPTS);
+    const data = await response.json();
+    const imageUrl = data.image_url || data.url || data.result?.[0]?.url;
 
-    if (task.status === 'completed') {
-      const url = extractImageUrl(task.result);
-      if (!url) throw new Error('Generation finished but no image URL was returned.');
-      onProgress?.({ phase: 'complete', message: 'Image ready', progress: 100, active: true });
-      return { url, taskId };
+    if (data.status && data.status !== 'completed' && !imageUrl) {
+      throw new Error(data.message || `Generation ended with status: ${data.status}`);
     }
 
-    if (task.status === 'failed') {
-      throw new Error(task.error_msg || task.error_code || 'Image generation failed.');
+    if (!imageUrl) {
+      throw new Error('Generation finished but no image URL was returned.');
     }
 
-    if (task.status === 'processing') {
-      const progress = 35 + (pollProgress / MAX_POLL_ATTEMPTS) * 58;
-      report('processing', `Generating image… (${pollProgress}/${MAX_POLL_ATTEMPTS})`, progress);
-    } else {
-      const progress = 18 + (pollProgress / MAX_POLL_ATTEMPTS) * 15;
-      report('queued', `In queue… (${pollProgress}/${MAX_POLL_ATTEMPTS})`, progress);
-    }
+    onProgress?.({ phase: 'complete', message: 'Image ready', progress: 100, active: true });
+    return { url: imageUrl, id: data.id };
+  } catch (err) {
+    clearInterval(ticker);
+    throw err;
   }
-
-  throw new Error('Timed out — try again in a moment.');
 }

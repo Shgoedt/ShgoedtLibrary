@@ -639,15 +639,15 @@ textarea {
       <div class="image-gen-section">
         <div class="output-header output-header-secondary">
           <h3>Generate Image</h3>
-          <span class="image-gen-badge">Z-Image Turbo</span>
+          <span class="image-gen-badge">Uncensored</span>
         </div>
         <div class="image-gen-content">
           <p class="image-gen-note">
-            Free via <a href="https://docs.sinancode.com/en/api-reference/endpoint/z-image-turbo-free" target="_blank" rel="noopener">SinanCode API</a>.
-            Get a key at <a href="https://sinancode.com" target="_blank" rel="noopener">sinancode.com</a>.
+            Uses the <a href="https://kwikiai.com/guides/nsfw-ai-api" target="_blank" rel="noopener">Kwiki AI uncensored API</a> (5 free credits/day).
+            Get a key at <a href="https://kwikiai.com/account" target="_blank" rel="noopener">kwikiai.com</a>.
           </p>
           <div class="field">
-            <label for="apiKey">SinanCode API key</label>
+            <label for="apiKey">Kwiki AI API key</label>
             <div class="api-key-row">
               <input type="password" id="apiKey" placeholder="Paste your API key" autocomplete="off" spellcheck="false">
               <span id="apiKeySaved" class="api-key-badge" hidden aria-live="polite">Saved locally</span>
@@ -655,17 +655,17 @@ textarea {
           </div>
           <div class="field-row">
             <div class="field">
-              <label for="imageResolution">Resolution</label>
-              <select id="imageResolution" aria-label="Image resolution"></select>
+              <label for="imageStyleGen">Generation style</label>
+              <select id="imageStyleGen" aria-label="Generation style"></select>
             </div>
             <div class="field">
-              <label for="imageSeed">Seed <span class="hint">(-1 = random)</span></label>
-              <input type="number" id="imageSeed" value="-1" min="-1" step="1">
+              <label for="imageQuality">Quality</label>
+              <select id="imageQuality" aria-label="Image quality"></select>
             </div>
           </div>
           <div class="image-gen-actions">
             <button type="button" id="btnGenerateImage" class="btn btn-primary">Generate image</button>
-            <button type="button" id="btnSuggestResolution" class="btn btn-ghost btn-sm">Match camera angle</button>
+            <button type="button" id="btnSuggestStyle" class="btn btn-ghost btn-sm">Match image style</button>
           </div>
 
           <div id="imageProgress" class="image-progress" hidden aria-live="polite">
@@ -1209,7 +1209,8 @@ const defaultState = {
   includeBodyDetails: true,
   customOutfit: '',
   customPose: '',
-  imageResolution: '1024x1024'
+  imageStyle_gen: 'realistic',
+  imageQuality: 'fast'
 };
 
 function loadState() {
@@ -1376,25 +1377,26 @@ function randomizeState(state, features, { nsfw = false } = {}) {
   };
 }
 
-const API_BASE = 'https://api.sinancode.com/v1';
-const GENERATE_PATH = '/generate/hf/z-image-turbo';
-const POLL_INTERVAL_MS = 2000;
-const MAX_POLL_ATTEMPTS = 120;
+const API_BASE = 'https://kwikiai.com/api/v1';
+const GENERATE_PATH = '/generate';
+const LEGACY_API_KEY_STORAGE = 'prompt-builder-sinancode-api-key';
+const API_KEY_STORAGE = 'prompt-builder-kwiki-api-key';
 
-const RESOLUTIONS = [
-  { value: '1024x1024', label: 'Square 1:1 (1024×1024)' },
-  { value: '1280x720', label: 'Landscape 16:9 (1280×720)' },
-  { value: '720x1280', label: 'Portrait 9:16 (720×1280)' },
-  { value: '896x1152', label: 'Portrait 3:4 (896×1152)' },
-  { value: '1152x896', label: 'Landscape 4:3 (1152×896)' },
-  { value: '1280x1280', label: 'Large square (1280×1280)' },
-  { value: '1536x1024', label: 'Wide 3:2 (1536×1024)' }
+const STYLES = [
+  { value: 'realistic', label: 'Realistic' },
+  { value: 'anime', label: 'Anime' },
+  { value: 'nude', label: 'Nude' }
 ];
 
-const API_KEY_STORAGE = 'prompt-builder-sinancode-api-key';
+const QUALITIES = [
+  { value: 'fast', label: 'Fast (1 credit)' },
+  { value: 'hires', label: 'Hi-res (2 credits)' }
+];
 
 function loadApiKey() {
-  return localStorage.getItem(API_KEY_STORAGE) || '';
+  return localStorage.getItem(API_KEY_STORAGE)
+    || localStorage.getItem(LEGACY_API_KEY_STORAGE)
+    || '';
 }
 
 function saveApiKey(key) {
@@ -1405,120 +1407,110 @@ function saveApiKey(key) {
   }
 }
 
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-function extractImageUrl(result) {
-  if (!result?.length) return null;
-  const first = result[0];
-  return typeof first === 'string' ? first : first?.url;
-}
-
 async function parseError(response) {
   try {
     const data = await response.json();
-    return data.message || data.error_msg || data.error_code || `HTTP ${response.status}`;
+    return data.error || data.message || data.detail || `HTTP ${response.status}`;
   } catch {
     return `HTTP ${response.status}`;
   }
 }
 
-function suggestResolution(cameraAngle) {
-  const portrait = new Set(['full_body', 'three_quarter', 'close_up', 'eye_level']);
-  const landscape = new Set(['low_angle', 'high_angle']);
-  if (cameraAngle === 'from_behind') return '896x1152';
-  if (portrait.has(cameraAngle)) return '720x1280';
-  if (landscape.has(cameraAngle)) return '1280x720';
-  return '1024x1024';
+function suggestStyle(imageStyle, outfitCategory) {
+  if (imageStyle === 'anime') return 'anime';
+  if (outfitCategory === 'nude') return 'nude';
+  return 'realistic';
+}
+
+function startProgressTicker(onProgress, start = 12, cap = 92) {
+  let progress = start;
+  onProgress?.({
+    phase: 'processing',
+    message: 'Generating image… this can take up to 90 seconds',
+    progress,
+    active: true
+  });
+
+  return setInterval(() => {
+    progress = Math.min(cap, progress + (progress < 50 ? 2 : 1));
+    onProgress?.({
+      phase: 'processing',
+      message: 'Generating image… this can take up to 90 seconds',
+      progress,
+      active: true
+    });
+  }, 1200);
 }
 
 async function generateImage({
   apiKey,
   prompt,
-  resolution = '1024x1024',
-  seed = -1,
+  style = 'realistic',
+  quality = 'fast',
   onProgress
 }) {
   if (!apiKey?.trim()) {
-    throw new Error('Enter your SinanCode API key first (free at sinancode.com).');
+    throw new Error('Enter your Kwiki AI API key first (free at kwikiai.com).');
   }
   if (!prompt?.trim()) {
     throw new Error('Prompt is empty — build a prompt first.');
   }
 
-  const report = (phase, message, progress) => {
-    onProgress?.({ phase, message, progress, active: true });
-  };
-
-  report('submitting', 'Submitting to Z-Image Turbo…', 8);
-
-  const createRes = await fetch(`${API_BASE}${GENERATE_PATH}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey.trim()}`
-    },
-    body: JSON.stringify({
-      prompt: prompt.trim(),
-      resolution,
-      num_images: 1,
-      seed
-    })
+  onProgress?.({
+    phase: 'submitting',
+    message: 'Submitting to Kwiki AI…',
+    progress: 8,
+    active: true
   });
 
-  if (!createRes.ok) {
-    throw new Error(await parseError(createRes));
-  }
+  const ticker = startProgressTicker(onProgress);
 
-  const { task_id: taskId } = await createRes.json();
-  if (!taskId) throw new Error('No task ID returned from API.');
-
-  report('queued', 'Queued — waiting for a slot…', 18);
-
-  for (let attempt = 0; attempt < MAX_POLL_ATTEMPTS; attempt++) {
-    await sleep(POLL_INTERVAL_MS);
-
-    const statusRes = await fetch(`${API_BASE}/tasks/${taskId}`, {
-      headers: { Authorization: `Bearer ${apiKey.trim()}` }
+  try {
+    const response = await fetch(`${API_BASE}${GENERATE_PATH}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey.trim()}`
+      },
+      body: JSON.stringify({
+        prompt: prompt.trim(),
+        style,
+        quality
+      })
     });
 
-    if (!statusRes.ok) {
-      throw new Error(await parseError(statusRes));
+    clearInterval(ticker);
+
+    if (!response.ok) {
+      throw new Error(await parseError(response));
     }
 
-    const task = await statusRes.json();
-    const pollProgress = Math.min(attempt + 1, MAX_POLL_ATTEMPTS);
+    const data = await response.json();
+    const imageUrl = data.image_url || data.url || data.result?.[0]?.url;
 
-    if (task.status === 'completed') {
-      const url = extractImageUrl(task.result);
-      if (!url) throw new Error('Generation finished but no image URL was returned.');
-      onProgress?.({ phase: 'complete', message: 'Image ready', progress: 100, active: true });
-      return { url, taskId };
+    if (data.status && data.status !== 'completed' && !imageUrl) {
+      throw new Error(data.message || `Generation ended with status: ${data.status}`);
     }
 
-    if (task.status === 'failed') {
-      throw new Error(task.error_msg || task.error_code || 'Image generation failed.');
+    if (!imageUrl) {
+      throw new Error('Generation finished but no image URL was returned.');
     }
 
-    if (task.status === 'processing') {
-      const progress = 35 + (pollProgress / MAX_POLL_ATTEMPTS) * 58;
-      report('processing', `Generating image… (${pollProgress}/${MAX_POLL_ATTEMPTS})`, progress);
-    } else {
-      const progress = 18 + (pollProgress / MAX_POLL_ATTEMPTS) * 15;
-      report('queued', `In queue… (${pollProgress}/${MAX_POLL_ATTEMPTS})`, progress);
-    }
+    onProgress?.({ phase: 'complete', message: 'Image ready', progress: 100, active: true });
+    return { url: imageUrl, id: data.id };
+  } catch (err) {
+    clearInterval(ticker);
+    throw err;
   }
-
-  throw new Error('Timed out — try again in a moment.');
 }
 
 import {
   generateImage,
   loadApiKey,
   saveApiKey,
-  RESOLUTIONS,
-  suggestResolution
+  STYLES,
+  QUALITIES,
+  suggestStyle
 } from './imageGenerator.js';
 
 let features = null;
@@ -1775,18 +1767,27 @@ function bindGlobalControls() {
 }
 
 function renderImageSettings() {
-  const resolutionSelect = $('#imageResolution');
-  resolutionSelect.innerHTML = '';
-  for (const res of RESOLUTIONS) {
+  const styleSelect = $('#imageStyleGen');
+  styleSelect.innerHTML = '';
+  for (const item of STYLES) {
     const opt = document.createElement('option');
-    opt.value = res.value;
-    opt.textContent = res.label;
-    if (res.value === state.imageResolution) opt.selected = true;
-    resolutionSelect.appendChild(opt);
+    opt.value = item.value;
+    opt.textContent = item.label;
+    if (item.value === state.imageStyle_gen) opt.selected = true;
+    styleSelect.appendChild(opt);
+  }
+
+  const qualitySelect = $('#imageQuality');
+  qualitySelect.innerHTML = '';
+  for (const item of QUALITIES) {
+    const opt = document.createElement('option');
+    opt.value = item.value;
+    opt.textContent = item.label;
+    if (item.value === state.imageQuality) opt.selected = true;
+    qualitySelect.appendChild(opt);
   }
 
   $('#apiKey').value = loadApiKey();
-  $('#imageSeed').value = state.imageSeed ?? -1;
   updateApiKeyBadge();
 }
 
@@ -1797,10 +1798,10 @@ function updateApiKeyBadge() {
 
 function setImageGenBusy(busy) {
   $('#btnGenerateImage').disabled = busy;
-  $('#btnSuggestResolution').disabled = busy;
+  $('#btnSuggestStyle').disabled = busy;
   $('#apiKey').disabled = busy;
-  $('#imageResolution').disabled = busy;
-  $('#imageSeed').disabled = busy;
+  $('#imageStyleGen').disabled = busy;
+  $('#imageQuality').disabled = busy;
 
   const btn = $('#btnGenerateImage');
   if (busy) {
@@ -1875,17 +1876,22 @@ function bindImageGeneration() {
     persistApiKey(e.target.value);
   });
 
-  $('#imageResolution').addEventListener('change', (e) => {
-    state.imageResolution = e.target.value;
+  $('#imageStyleGen').addEventListener('change', (e) => {
+    state.imageStyle_gen = e.target.value;
     saveState(state);
   });
 
-  $('#btnSuggestResolution').addEventListener('click', () => {
-    const suggested = suggestResolution(state.cameraAngle);
-    state.imageResolution = suggested;
-    $('#imageResolution').value = suggested;
+  $('#imageQuality').addEventListener('change', (e) => {
+    state.imageQuality = e.target.value;
     saveState(state);
-    setImageStatus(`Resolution set to ${suggested} for ${state.cameraAngle.replace(/_/g, ' ')}.`);
+  });
+
+  $('#btnSuggestStyle').addEventListener('click', () => {
+    const suggested = suggestStyle(state.imageStyle, state.outfitCategory);
+    state.imageStyle_gen = suggested;
+    $('#imageStyleGen').value = suggested;
+    saveState(state);
+    setImageStatus(`Style set to ${suggested}.`);
   });
 
   $('#btnOpenImage').addEventListener('click', () => {
@@ -1897,8 +1903,8 @@ function bindImageGeneration() {
     persistApiKey(apiKey);
 
     const prompt = $('#promptOutput').value.trim();
-    const resolution = $('#imageResolution').value;
-    const seed = Number.parseInt($('#imageSeed').value, 10);
+    const style = $('#imageStyleGen').value;
+    const quality = $('#imageQuality').value;
 
     setImageGenBusy(true);
     $('#imageResult').hidden = true;
@@ -1909,8 +1915,8 @@ function bindImageGeneration() {
       const { url } = await generateImage({
         apiKey,
         prompt,
-        resolution,
-        seed: Number.isFinite(seed) ? seed : -1,
+        style,
+        quality,
         onProgress: setImageProgress
       });
       showGeneratedImage(url);

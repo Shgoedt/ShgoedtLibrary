@@ -10,7 +10,7 @@ A single-page HTML tool for building image-generation prompts from human feature
 - **Live prompt generation** with editable output and negative prompt
 - **Presets** saved to `localStorage`
 - **Randomize** button for quick inspiration
-- **Image generation** via free Z-Image Turbo API (SinanCode — API key required, stored locally)
+- **Image generation** via uncensored Kwiki AI API (5 free credits/day — API key stored locally)
 
 ## Run locally
 
@@ -57,15 +57,15 @@ After ~1 minute, open:
 
 **https://shgoedt.github.io/ShgoedtLibrary/**
 
-## Image generation (Z-Image Turbo)
+## Image generation (Kwiki AI — uncensored)
 
-The app can generate images directly from your prompt using the **free** [SinanCode Z-Image Turbo API](https://docs.sinancode.com/en/api-reference/endpoint/z-image-turbo-free).
+The app generates images from your prompt using the **uncensored** [Kwiki AI API](https://kwikiai.com/guides/nsfw-ai-api) — no content filters on legal adult prompts.
 
-1. Create a free account at [sinancode.com](https://sinancode.com) and copy your API key
-2. Paste the key into the **SinanCode API key** field in the app (saved in your browser only)
-3. Build your prompt, pick a resolution, and click **Generate image**
+1. Create a free account at [kwikiai.com/account](https://kwikiai.com/account) (5 free credits per day)
+2. Paste your API key into the app (saved in your browser only)
+3. Choose style (realistic / anime / nude) and quality, then click **Generate image**
 
-Generation is async and usually takes 10–60 seconds. Image URLs from the API are temporary — download if you want to keep them.
+Generation typically takes 30–90 seconds. Image URLs are temporary — download to keep them.
 
 ## Deploy on GitHub
 
