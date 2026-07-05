@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0f1117">
+  <title>Character Prompt Builder</title>
+  <style>
+:root {
+  --bg: #0f1117;
+  --surface: #1a1d27;
+  --surface-2: #242836;
+  --border: #2e3345;
+  --text: #e8eaef;
+  --text-muted: #8b92a8;
+  --accent: #6c8cff;
+  --accent-hover: #8aa4ff;
+  --accent-dim: rgba(108, 140, 255, 0.15);
+  --danger: #ff6b6b;
+  --radius: 10px;
+  --shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, "Cascadia Code", "Fira Code", monospace;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 600;
+}
+
+.subtitle {
+  margin: 0.2rem 0 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.main {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.panel-title {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+}
+
+.panel-content {
+  padding: 0.75rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.panel-output {
+  grid-column: 1 / -1;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.field label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.field-checkbox label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  color: var(--text);
+  font-size: 0.85rem;
+}
+
+.hint {
+  font-weight: 400;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+select,
+input[type="text"],
+textarea {
+  width: 100%;
+  padding: 0.5rem 0.65rem;
+  font-family: inherit;
+  font-size: 16px;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  transition: border-color 0.15s;
+}
+
+select:focus,
+input[type="text"]:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+textarea {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 0.25rem 0;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.btn-sm {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: var(--accent-hover);
+}
+
+.btn-secondary {
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+  background: var(--border);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+
+.btn-ghost:hover {
+  color: var(--text);
+  border-color: var(--text-muted);
+}
+
+.output-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1rem;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+}
+
+.output-header-secondary {
+  margin-top: 0;
+  border-top: 1px solid var(--border);
+}
+
+.output-header-secondary h3 {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.output-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.panel-output textarea {
+  border: none;
+  border-radius: 0;
+  background: var(--bg);
+}
+
+.preset-section {
+  padding: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.preset-section h3 {
+  margin: 0 0 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.preset-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.preset-row select,
+.preset-row input {
+  flex: 1;
+}
+
+.footer {
+  text-align: center;
+  padding: 1.5rem;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.footer p {
+  margin: 0;
+}
+
+.footer-link {
+  margin-top: 0.5rem;
+}
+
+.footer-link a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.footer-link a:hover {
+  text-decoration: underline;
+}
+
+.error-banner {
+  max-width: 600px;
+  margin: 4rem auto;
+  padding: 2rem;
+  background: var(--surface);
+  border: 1px solid var(--danger);
+  border-radius: var(--radius);
+}
+
+.error-banner h2 {
+  margin-top: 0;
+  color: var(--danger);
+}
+
+.error-banner code {
+  display: block;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: var(--bg);
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 1024px) {
+  .main {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .panel-output {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .main {
+    grid-template-columns: 1fr;
+    padding: 0.75rem;
+  }
+
+  .header {
+    padding: 1rem;
+  }
+
+  .preset-row {
+    flex-wrap: wrap;
+  }
+}
+
+</style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <h1>Character Prompt Builder</h1>
+      <p class="subtitle">Select features to generate an image prompt automatically</p>
+    </div>
+    <div class="header-actions">
+      <button type="button" id="btnRandom" class="btn btn-secondary" title="Randomize all fields">Randomize</button>
+      <button type="button" id="btnReset" class="btn btn-ghost">Reset</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="panel" id="panel-body">
+      <h2 class="panel-title">Body &amp; Face</h2>
+      <div class="panel-content" id="bodyFields"></div>
+    </section>
+
+    <section class="panel" id="panel-style">
+      <h2 class="panel-title">Style &amp; Scene</h2>
+      <div class="panel-content" id="styleFields"></div>
+    </section>
+
+    <section class="panel" id="panel-outfit">
+      <h2 class="panel-title">Outfit &amp; Pose</h2>
+      <div class="panel-content">
+        <div class="field">
+          <label for="outfitCategory">Outfit category</label>
+          <select id="outfitCategory" name="outfitCategory"></select>
+        </div>
+        <div class="field">
+          <label for="outfitDetail">Outfit</label>
+          <select id="outfitDetail" name="outfitDetail"></select>
+        </div>
+        <div class="field">
+          <label for="customOutfit">Custom outfit <span class="hint">(overrides selector)</span></label>
+          <input type="text" id="customOutfit" placeholder="e.g. wearing a red silk robe">
+        </div>
+
+        <hr class="divider">
+
+        <div class="field field-checkbox">
+          <label>
+            <input type="checkbox" id="showNsfw">
+            Show NSFW pose options
+          </label>
+        </div>
+
+        <div class="field">
+          <label for="poseCategory">Pose category</label>
+          <select id="poseCategory" name="poseCategory"></select>
+        </div>
+        <div class="field">
+          <label for="poseDetail">Pose</label>
+          <select id="poseDetail" name="poseDetail"></select>
+        </div>
+        <div class="field">
+          <label for="customPose">Custom pose <span class="hint">(overrides selector)</span></label>
+          <input type="text" id="customPose" placeholder="e.g. sitting cross-legged">
+        </div>
+
+        <hr class="divider">
+
+        <div class="field field-checkbox">
+          <label>
+            <input type="checkbox" id="includeBodyDetails" checked>
+            Include breast &amp; butt size in prompt
+          </label>
+        </div>
+        <div class="field field-checkbox">
+          <label>
+            <input type="checkbox" id="includeShaved" checked>
+            Include shaved status in prompt
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel panel-output" id="panel-output">
+      <div class="output-header">
+        <h2 class="panel-title">Generated Prompt</h2>
+        <div class="output-actions">
+          <button type="button" id="btnRegenerate" class="btn btn-ghost btn-sm">Regenerate</button>
+          <button type="button" id="btnCopy" class="btn btn-primary btn-sm">Copy prompt</button>
+        </div>
+      </div>
+      <textarea id="promptOutput" rows="6" spellcheck="false" aria-label="Generated prompt"></textarea>
+
+      <div class="output-header output-header-secondary">
+        <h3>Negative Prompt</h3>
+        <button type="button" id="btnCopyNegative" class="btn btn-secondary btn-sm">Copy negative</button>
+      </div>
+      <textarea id="negativeOutput" rows="3" spellcheck="false" aria-label="Negative prompt"></textarea>
+
+      <div class="preset-section">
+        <h3>Presets</h3>
+        <div class="preset-row">
+          <input type="text" id="presetName" placeholder="Preset name" aria-label="Preset name">
+          <button type="button" id="btnSavePreset" class="btn btn-secondary btn-sm">Save</button>
+        </div>
+        <div class="preset-row">
+          <select id="presetList" aria-label="Saved presets">
+            <option value="">— Select preset —</option>
+          </select>
+          <button type="button" id="btnLoadPreset" class="btn btn-secondary btn-sm">Load</button>
+          <button type="button" id="btnDeletePreset" class="btn btn-ghost btn-sm">Delete</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>Runs entirely in your browser. State is saved to localStorage.</p>
+    <p class="footer-link"><a href="https://github.com/Shgoedt/ShgoedtLibrary/tree/master/prompt-builder">View on GitHub</a></p>
+  </footer>
+
+  <script>
+const FEATURES = {
+  "age": [
+    { "value": "18-22", "label": "18–22" },
+    { "value": "23-28", "label": "23–28" },
+    { "value": "29-35", "label": "29–35" },
+    { "value": "36-45", "label": "36–45" },
+    { "value": "mature", "label": "Mature (45+)" }
+  ],
+  "race": [
+    { "value": "unspecified", "label": "Unspecified" },
+    { "value": "caucasian", "label": "Caucasian" },
+    { "value": "asian", "label": "Asian" },
+    { "value": "black", "label": "Black" },
+    { "value": "latina", "label": "Latina" },
+    { "value": "middle_eastern", "label": "Middle Eastern" },
+    { "value": "south_asian", "label": "South Asian" },
+    { "value": "mixed", "label": "Mixed" }
+  ],
+  "physique": [
+    { "value": "petite", "label": "Petite" },
+    { "value": "slim", "label": "Slim" },
+    { "value": "athletic", "label": "Athletic" },
+    { "value": "curvy", "label": "Curvy" },
+    { "value": "voluptuous", "label": "Voluptuous" },
+    { "value": "muscular", "label": "Muscular" }
+  ],
+  "breastSize": [
+    { "value": "small", "label": "Small" },
+    { "value": "medium", "label": "Medium" },
+    { "value": "large", "label": "Large" },
+    { "value": "very_large", "label": "Very Large" }
+  ],
+  "buttSize": [
+    { "value": "small", "label": "Small" },
+    { "value": "medium", "label": "Medium" },
+    { "value": "large", "label": "Large" },
+    { "value": "very_large", "label": "Very Large" }
+  ],
+  "hairColor": [
+    { "value": "blonde", "label": "Blonde" },
+    { "value": "brunette", "label": "Brunette" },
+    { "value": "black", "label": "Black" },
+    { "value": "red", "label": "Red" },
+    { "value": "auburn", "label": "Auburn" },
+    { "value": "platinum", "label": "Platinum" },
+    { "value": "pink", "label": "Pink" },
+    { "value": "blue", "label": "Blue" },
+    { "value": "silver", "label": "Silver" }
+  ],
+  "hairLength": [
+    { "value": "bald", "label": "Bald" },
+    { "value": "short", "label": "Short" },
+    { "value": "shoulder", "label": "Shoulder-length" },
+    { "value": "long", "label": "Long" },
+    { "value": "very_long", "label": "Very Long" }
+  ],
+  "eyeColor": [
+    { "value": "brown", "label": "Brown" },
+    { "value": "blue", "label": "Blue" },
+    { "value": "green", "label": "Green" },
+    { "value": "hazel", "label": "Hazel" },
+    { "value": "gray", "label": "Gray" },
+    { "value": "amber", "label": "Amber" }
+  ],
+  "shaved": [
+    { "value": "fully_shaved", "label": "Fully shaved" },
+    { "value": "trimmed", "label": "Trimmed" },
+    { "value": "natural", "label": "Natural" },
+    { "value": "landing_strip", "label": "Landing strip" }
+  ],
+  "imageStyle": [
+    { "value": "photorealistic", "label": "Photorealistic" },
+    { "value": "cinematic", "label": "Cinematic" },
+    { "value": "studio_portrait", "label": "Studio Portrait" },
+    { "value": "fashion_editorial", "label": "Fashion Editorial" },
+    { "value": "anime", "label": "Anime" },
+    { "value": "3d_render", "label": "3D Render" },
+    { "value": "oil_painting", "label": "Oil Painting" },
+    { "value": "watercolor", "label": "Watercolor" }
+  ],
+  "lighting": [
+    { "value": "soft_natural", "label": "Soft natural light" },
+    { "value": "golden_hour", "label": "Golden hour" },
+    { "value": "studio_softbox", "label": "Studio softbox" },
+    { "value": "dramatic_rim", "label": "Dramatic rim light" },
+    { "value": "neon", "label": "Neon lighting" },
+    { "value": "candlelight", "label": "Candlelight" },
+    { "value": "overcast", "label": "Overcast diffuse" }
+  ],
+  "backdrop": [
+    { "value": "bedroom", "label": "Bedroom" },
+    { "value": "bathroom", "label": "Bathroom" },
+    { "value": "beach", "label": "Beach" },
+    { "value": "gym", "label": "Gym" },
+    { "value": "forest", "label": "Forest" },
+    { "value": "urban", "label": "Urban street" },
+    { "value": "hotel", "label": "Luxury hotel" },
+    { "value": "studio", "label": "Plain studio backdrop" },
+    { "value": "pool", "label": "Poolside" },
+    { "value": "kitchen", "label": "Kitchen" },
+    { "value": "office", "label": "Office" }
+  ],
+  "cameraAngle": [
+    { "value": "eye_level", "label": "Eye level" },
+    { "value": "low_angle", "label": "Low angle" },
+    { "value": "high_angle", "label": "High angle" },
+    { "value": "close_up", "label": "Close-up portrait" },
+    { "value": "full_body", "label": "Full body" },
+    { "value": "three_quarter", "label": "Three-quarter view" },
+    { "value": "from_behind", "label": "From behind" }
+  ],
+  "outfits": {
+    "nude": {
+      "label": "Nude",
+      "items": [
+        { "value": "fully_nude", "label": "Fully nude" },
+        { "value": "topless", "label": "Topless" },
+        { "value": "bottomless", "label": "Bottomless" },
+        { "value": "artistic_nude", "label": "Artistic nude" }
+      ]
+    },
+    "lingerie": {
+      "label": "Lingerie",
+      "items": [
+        { "value": "lace_bra_panties", "label": "Lace bra and panties" },
+        { "value": "bodysuit", "label": "Bodysuit" },
+        { "value": "garter_stockings", "label": "Garter belt and stockings" },
+        { "value": "negligee", "label": "Sheer negligee" },
+        { "value": "corset", "label": "Corset" },
+        { "value": "thong_bra", "label": "Thong and bra set" }
+      ]
+    },
+    "sports": {
+      "label": "Sports",
+      "items": [
+        { "value": "yoga_outfit", "label": "Yoga outfit" },
+        { "value": "gym_set", "label": "Gym leggings and sports bra" },
+        { "value": "tennis", "label": "Tennis outfit" },
+        { "value": "swimsuit", "label": "Swimsuit" },
+        { "value": "running_shorts", "label": "Running shorts and tank top" }
+      ]
+    },
+    "casual": {
+      "label": "Casual",
+      "items": [
+        { "value": "jeans_tshirt", "label": "Jeans and t-shirt" },
+        { "value": "summer_dress", "label": "Summer dress" },
+        { "value": "oversized_shirt", "label": "Oversized shirt" },
+        { "value": "shorts_crop_top", "label": "Shorts and crop top" },
+        { "value": "hoodie", "label": "Hoodie and leggings" }
+      ]
+    },
+    "formal": {
+      "label": "Formal",
+      "items": [
+        { "value": "evening_gown", "label": "Evening gown" },
+        { "value": "cocktail_dress", "label": "Cocktail dress" },
+        { "value": "business_suit", "label": "Business suit" },
+        { "value": "wedding_dress", "label": "Wedding dress" }
+      ]
+    },
+    "themed": {
+      "label": "Themed / Cosplay",
+      "items": [
+        { "value": "maid", "label": "Maid outfit" },
+        { "value": "nurse", "label": "Nurse outfit" },
+        { "value": "school_uniform", "label": "School uniform" },
+        { "value": "bunny", "label": "Bunny costume" },
+        { "value": "cheerleader", "label": "Cheerleader outfit" }
+      ]
+    }
+  },
+  "poses": {
+    "standing": {
+      "label": "Standing",
+      "nsfw": false,
+      "items": [
+        { "value": "standing_confident", "label": "Standing confidently" },
+        { "value": "hands_on_hips", "label": "Hands on hips" },
+        { "value": "leaning_wall", "label": "Leaning against wall" },
+        { "value": "arms_crossed", "label": "Arms crossed" },
+        { "value": "weight_one_leg", "label": "Weight on one leg" }
+      ]
+    },
+    "sitting": {
+      "label": "Sitting / Lying",
+      "nsfw": false,
+      "items": [
+        { "value": "sitting_chair", "label": "Sitting on chair" },
+        { "value": "sitting_bed", "label": "Sitting on bed" },
+        { "value": "lying_side", "label": "Lying on side" },
+        { "value": "lying_back_relaxed", "label": "Lying on back (relaxed)" },
+        { "value": "sitting_floor", "label": "Sitting on floor" }
+      ]
+    },
+    "action": {
+      "label": "Action",
+      "nsfw": false,
+      "items": [
+        { "value": "walking", "label": "Walking" },
+        { "value": "stretching", "label": "Stretching" },
+        { "value": "yoga_pose", "label": "Yoga pose" },
+        { "value": "running", "label": "Running" },
+        { "value": "dancing", "label": "Dancing" }
+      ]
+    },
+    "portrait": {
+      "label": "Portrait",
+      "nsfw": false,
+      "items": [
+        { "value": "looking_camera", "label": "Looking at camera" },
+        { "value": "profile", "label": "Profile view" },
+        { "value": "over_shoulder", "label": "Over-shoulder glance" },
+        { "value": "head_tilt", "label": "Head tilt, soft smile" },
+        { "value": "looking_away", "label": "Looking away" }
+      ]
+    },
+    "suggestive": {
+      "label": "Suggestive",
+      "nsfw": true,
+      "items": [
+        { "value": "lying_back", "label": "Lying on back" },
+        { "value": "on_all_fours", "label": "On all fours" },
+        { "value": "kneeling", "label": "Kneeling" },
+        { "value": "bent_over", "label": "Bent over" },
+        { "value": "spread_legs", "label": "Spread legs" },
+        { "value": "straddling", "label": "Straddling" },
+        { "value": "arching_back", "label": "Arching back" }
+      ]
+    },
+    "explicit": {
+      "label": "Explicit",
+      "nsfw": true,
+      "items": [
+        { "value": "masturbating", "label": "Masturbating" },
+        { "value": "spread_presentation", "label": "Presentation pose" },
+        { "value": "doggy_style", "label": "Doggy style position" },
+        { "value": "missionary", "label": "Missionary position" },
+        { "value": "riding", "label": "Riding position" }
+      ]
+    }
+  },
+  "qualityTags": [
+    "highly detailed",
+    "sharp focus",
+    "professional photography",
+    "8k uhd"
+  ],
+  "negativeDefaults": [
+    "low quality",
+    "blurry",
+    "deformed",
+    "extra limbs",
+    "bad anatomy",
+    "watermark",
+    "text",
+    "cropped",
+    "ugly",
+    "disfigured",
+    "poorly drawn face",
+    "mutation",
+    "extra fingers"
+  ]
+}
+;
+const TEMPLATES = {
+  "age": {
+    "18-22": "young woman in her early twenties",
+    "23-28": "woman in her mid-twenties",
+    "29-35": "woman in her early thirties",
+    "36-45": "woman in her late thirties to forties",
+    "mature": "mature woman"
+  },
+  "race": {
+    "unspecified": "",
+    "caucasian": "caucasian",
+    "asian": "asian",
+    "black": "black",
+    "latina": "latina",
+    "middle_eastern": "middle eastern",
+    "south_asian": "south asian",
+    "mixed": "mixed ethnicity"
+  },
+  "physique": {
+    "petite": "petite build",
+    "slim": "slim build",
+    "athletic": "athletic build",
+    "curvy": "curvy build",
+    "voluptuous": "voluptuous figure",
+    "muscular": "muscular build"
+  },
+  "breastSize": {
+    "small": "small breasts",
+    "medium": "medium breasts",
+    "large": "large breasts",
+    "very_large": "very large breasts"
+  },
+  "buttSize": {
+    "small": "small butt",
+    "medium": "medium butt",
+    "large": "large butt",
+    "very_large": "very large butt"
+  },
+  "hairColor": {
+    "blonde": "blonde",
+    "brunette": "brunette",
+    "black": "black",
+    "red": "red",
+    "auburn": "auburn",
+    "platinum": "platinum blonde",
+    "pink": "pink",
+    "blue": "blue",
+    "silver": "silver"
+  },
+  "hairLength": {
+    "bald": "bald",
+    "short": "short",
+    "shoulder": "shoulder-length",
+    "long": "long",
+    "very_long": "very long"
+  },
+  "eyeColor": {
+    "brown": "brown eyes",
+    "blue": "blue eyes",
+    "green": "green eyes",
+    "hazel": "hazel eyes",
+    "gray": "gray eyes",
+    "amber": "amber eyes"
+  },
+  "shaved": {
+    "fully_shaved": "fully shaved",
+    "trimmed": "trimmed",
+    "natural": "natural pubic hair",
+    "landing_strip": "landing strip"
+  },
+  "imageStyle": {
+    "photorealistic": "photorealistic",
+    "cinematic": "cinematic",
+    "studio_portrait": "studio portrait",
+    "fashion_editorial": "fashion editorial",
+    "anime": "anime style",
+    "3d_render": "3D render",
+    "oil_painting": "oil painting",
+    "watercolor": "watercolor"
+  },
+  "lighting": {
+    "soft_natural": "soft natural lighting",
+    "golden_hour": "golden hour lighting",
+    "studio_softbox": "studio softbox lighting",
+    "dramatic_rim": "dramatic rim lighting",
+    "neon": "neon lighting",
+    "candlelight": "warm candlelight",
+    "overcast": "overcast diffuse lighting"
+  },
+  "backdrop": {
+    "bedroom": "in a cozy bedroom",
+    "bathroom": "in a modern bathroom",
+    "beach": "on a sunny beach",
+    "gym": "in a gym",
+    "forest": "in a lush forest",
+    "urban": "on an urban street",
+    "hotel": "in a luxury hotel room",
+    "studio": "against a plain studio backdrop",
+    "pool": "poolside",
+    "kitchen": "in a kitchen",
+    "office": "in an office"
+  },
+  "cameraAngle": {
+    "eye_level": "eye level shot",
+    "low_angle": "low angle shot",
+    "high_angle": "high angle shot",
+    "close_up": "close-up portrait",
+    "full_body": "full body shot",
+    "three_quarter": "three-quarter view",
+    "from_behind": "shot from behind"
+  },
+  "outfits": {
+    "nude": {
+      "fully_nude": "fully nude",
+      "topless": "topless",
+      "bottomless": "bottomless",
+      "artistic_nude": "artistic nude"
+    },
+    "lingerie": {
+      "lace_bra_panties": "wearing lace bra and panties",
+      "bodysuit": "wearing a lace bodysuit",
+      "garter_stockings": "wearing garter belt and stockings",
+      "negligee": "wearing a sheer negligee",
+      "corset": "wearing a corset",
+      "thong_bra": "wearing a thong and bra set"
+    },
+    "sports": {
+      "yoga_outfit": "wearing a yoga outfit",
+      "gym_set": "wearing gym leggings and sports bra",
+      "tennis": "wearing a tennis outfit",
+      "swimsuit": "wearing a swimsuit",
+      "running_shorts": "wearing running shorts and tank top"
+    },
+    "casual": {
+      "jeans_tshirt": "wearing jeans and a t-shirt",
+      "summer_dress": "wearing a summer dress",
+      "oversized_shirt": "wearing an oversized shirt",
+      "shorts_crop_top": "wearing shorts and a crop top",
+      "hoodie": "wearing a hoodie and leggings"
+    },
+    "formal": {
+      "evening_gown": "wearing an evening gown",
+      "cocktail_dress": "wearing a cocktail dress",
+      "business_suit": "wearing a business suit",
+      "wedding_dress": "wearing a wedding dress"
+    },
+    "themed": {
+      "maid": "wearing a maid outfit",
+      "nurse": "wearing a nurse outfit",
+      "school_uniform": "wearing a school uniform",
+      "bunny": "wearing a bunny costume",
+      "cheerleader": "wearing a cheerleader outfit"
+    }
+  },
+  "poses": {
+    "standing": {
+      "standing_confident": "standing confidently",
+      "hands_on_hips": "hands on hips",
+      "leaning_wall": "leaning against a wall",
+      "arms_crossed": "arms crossed",
+      "weight_one_leg": "standing with weight on one leg"
+    },
+    "sitting": {
+      "sitting_chair": "sitting on a chair",
+      "sitting_bed": "sitting on a bed",
+      "lying_side": "lying on her side",
+      "lying_back_relaxed": "lying on her back relaxed",
+      "sitting_floor": "sitting on the floor"
+    },
+    "action": {
+      "walking": "walking",
+      "stretching": "stretching",
+      "yoga_pose": "in a yoga pose",
+      "running": "running",
+      "dancing": "dancing"
+    },
+    "portrait": {
+      "looking_camera": "looking at the camera",
+      "profile": "profile view",
+      "over_shoulder": "glancing over shoulder",
+      "head_tilt": "head tilt with soft smile",
+      "looking_away": "looking away"
+    },
+    "suggestive": {
+      "lying_back": "lying on her back",
+      "on_all_fours": "on all fours",
+      "kneeling": "kneeling",
+      "bent_over": "bent over",
+      "spread_legs": "legs spread",
+      "straddling": "straddling",
+      "arching_back": "arching her back"
+    },
+    "explicit": {
+      "masturbating": "masturbating",
+      "spread_presentation": "presentation pose",
+      "doggy_style": "in doggy style position",
+      "missionary": "in missionary position",
+      "riding": "in riding position"
+    }
+  }
+}
+;
+</script>
+<script>
+const STORAGE_KEY = 'prompt-builder-state';
+const PRESETS_KEY = 'prompt-builder-presets';
+
+const defaultState = {
+  age: '23-28',
+  race: 'unspecified',
+  physique: 'athletic',
+  breastSize: 'medium',
+  buttSize: 'medium',
+  hairColor: 'brunette',
+  hairLength: 'long',
+  eyeColor: 'brown',
+  shaved: 'fully_shaved',
+  imageStyle: 'photorealistic',
+  lighting: 'soft_natural',
+  backdrop: 'bedroom',
+  cameraAngle: 'full_body',
+  outfitCategory: 'lingerie',
+  outfitDetail: 'lace_bra_panties',
+  poseCategory: 'standing',
+  poseDetail: 'hands_on_hips',
+  showNsfw: false,
+  includeShaved: true,
+  includeBodyDetails: true,
+  customOutfit: '',
+  customPose: ''
+};
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      return { ...defaultState, ...JSON.parse(saved) };
+    }
+  } catch {
+    /* ignore corrupt storage */
+  }
+  return { ...defaultState };
+}
+
+function saveState(state) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function loadPresets() {
+  try {
+    const saved = localStorage.getItem(PRESETS_KEY);
+    if (saved) return JSON.parse(saved);
+  } catch {
+    /* ignore */
+  }
+  return {};
+}
+
+function savePresets(presets) {
+  localStorage.setItem(PRESETS_KEY, JSON.stringify(presets));
+}
+
+function resetState() {
+  localStorage.removeItem(STORAGE_KEY);
+  return { ...defaultState };
+}
+
+const NUDE_OUTFITS = new Set(['fully_nude', 'topless', 'bottomless', 'artistic_nude']);
+
+function lookup(templates, category, key) {
+  return templates[category]?.[key] ?? '';
+}
+
+function lookupNested(templates, category, group, key) {
+  return templates[category]?.[group]?.[key] ?? '';
+}
+
+function shouldIncludeShaved(state) {
+  if (!state.includeShaved) return false;
+  const isNude = state.outfitCategory === 'nude' ||
+    NUDE_OUTFITS.has(state.outfitDetail);
+  return isNude || state.includeShaved;
+}
+
+function buildPrompt(state, templates, features) {
+  const parts = [];
+
+  const agePhrase = lookup(templates, 'age', state.age);
+  if (agePhrase) parts.push(agePhrase);
+
+  const racePhrase = lookup(templates, 'race', state.race);
+  if (racePhrase) parts.push(racePhrase);
+
+  const physiquePhrase = lookup(templates, 'physique', state.physique);
+  if (physiquePhrase) parts.push(physiquePhrase);
+
+  if (state.includeBodyDetails) {
+    const breastPhrase = lookup(templates, 'breastSize', state.breastSize);
+    if (breastPhrase) parts.push(breastPhrase);
+
+    const buttPhrase = lookup(templates, 'buttSize', state.buttSize);
+    if (buttPhrase) parts.push(buttPhrase);
+  }
+
+  const hairColor = lookup(templates, 'hairColor', state.hairColor);
+  const hairLength = lookup(templates, 'hairLength', state.hairLength);
+  if (state.hairLength === 'bald') {
+    parts.push('bald head');
+  } else if (hairLength && hairColor) {
+    parts.push(`${hairLength} ${hairColor} hair`);
+  }
+
+  const eyePhrase = lookup(templates, 'eyeColor', state.eyeColor);
+  if (eyePhrase) parts.push(eyePhrase);
+
+  if (shouldIncludeShaved(state)) {
+    const shavedPhrase = lookup(templates, 'shaved', state.shaved);
+    if (shavedPhrase) parts.push(shavedPhrase);
+  }
+
+  if (state.customOutfit?.trim()) {
+    parts.push(state.customOutfit.trim());
+  } else {
+    const outfitPhrase = lookupNested(templates, 'outfits', state.outfitCategory, state.outfitDetail);
+    if (outfitPhrase) parts.push(outfitPhrase);
+  }
+
+  if (state.customPose?.trim()) {
+    parts.push(state.customPose.trim());
+  } else {
+    const posePhrase = lookupNested(templates, 'poses', state.poseCategory, state.poseDetail);
+    if (posePhrase) parts.push(posePhrase);
+  }
+
+  const backdropPhrase = lookup(templates, 'backdrop', state.backdrop);
+  if (backdropPhrase) parts.push(backdropPhrase);
+
+  const lightingPhrase = lookup(templates, 'lighting', state.lighting);
+  if (lightingPhrase) parts.push(lightingPhrase);
+
+  const cameraPhrase = lookup(templates, 'cameraAngle', state.cameraAngle);
+  if (cameraPhrase) parts.push(cameraPhrase);
+
+  const stylePhrase = lookup(templates, 'imageStyle', state.imageStyle);
+  if (stylePhrase) parts.push(stylePhrase);
+
+  if (features.qualityTags?.length) {
+    parts.push(features.qualityTags.join(', '));
+  }
+
+  return parts.filter(Boolean).join(', ');
+}
+
+function buildNegativePrompt(features, extras = []) {
+  const defaults = features.negativeDefaults ?? [];
+  return [...defaults, ...extras].join(', ');
+}
+
+function randomizeState(state, features, { nsfw = false } = {}) {
+  const pick = (arr) => arr[Math.floor(Math.random() * arr.length)].value;
+  const pickKey = (obj, filter) => {
+    const keys = Object.keys(obj).filter(filter ?? (() => true));
+    return keys[Math.floor(Math.random() * keys.length)];
+  };
+
+  const outfitCategory = pickKey(features.outfits);
+  const outfitItems = features.outfits[outfitCategory].items;
+
+  const poseFilter = nsfw ? () => true : (k) => !features.poses[k].nsfw;
+  const poseCategory = pickKey(features.poses, poseFilter);
+  const poseItems = features.poses[poseCategory].items;
+
+  return {
+    ...state,
+    age: pick(features.age),
+    race: pick(features.race),
+    physique: pick(features.physique),
+    breastSize: pick(features.breastSize),
+    buttSize: pick(features.buttSize),
+    hairColor: pick(features.hairColor),
+    hairLength: pick(features.hairLength),
+    eyeColor: pick(features.eyeColor),
+    shaved: pick(features.shaved),
+    imageStyle: pick(features.imageStyle),
+    lighting: pick(features.lighting),
+    backdrop: pick(features.backdrop),
+    cameraAngle: pick(features.cameraAngle),
+    outfitCategory,
+    outfitDetail: pick(outfitItems),
+    poseCategory,
+    poseDetail: pick(poseItems),
+    customOutfit: '',
+    customPose: ''
+  };
+}
+
+
+let features = null;
+let templates = null;
+let state = loadState();
+let promptEdited = false;
+let negativeEdited = false;
+
+const FIELD_LABELS = {
+  age: 'Age',
+  race: 'Race / ethnicity',
+  physique: 'Physique',
+  breastSize: 'Breast size',
+  buttSize: 'Butt size',
+  hairColor: 'Hair color',
+  hairLength: 'Hair length',
+  eyeColor: 'Eye color',
+  shaved: 'Shaved status',
+  imageStyle: 'Image style',
+  lighting: 'Lighting',
+  backdrop: 'Backdrop / location',
+  cameraAngle: 'Camera angle'
+};
+
+const $ = (sel) => document.querySelector(sel);
+
+function loadData() {
+  features = FEATURES;
+  templates = TEMPLATES;
+  return Promise.resolve();
+}
+
+function createSelect(id, options, value, onChange) {
+  const field = document.createElement('div');
+  field.className = 'field';
+
+  const label = document.createElement('label');
+  label.htmlFor = id;
+  label.textContent = FIELD_LABELS[id] ?? id;
+
+  const select = document.createElement('select');
+  select.id = id;
+  select.name = id;
+
+  for (const opt of options) {
+    const option = document.createElement('option');
+    option.value = opt.value;
+    option.textContent = opt.label;
+    if (opt.value === value) option.selected = true;
+    select.appendChild(option);
+  }
+
+  select.addEventListener('change', () => onChange(select.value));
+  field.append(label, select);
+  return field;
+}
+
+function renderSimpleFields(container, fieldNames) {
+  container.innerHTML = '';
+  for (const name of fieldNames) {
+    const options = features[name];
+    if (!options) continue;
+    container.appendChild(createSelect(name, options, state[name], (val) => {
+      state[name] = val;
+      persistAndUpdate();
+    }));
+  }
+}
+
+function renderOutfitFields() {
+  const categorySelect = $('#outfitCategory');
+  const detailSelect = $('#outfitDetail');
+
+  categorySelect.innerHTML = '';
+  for (const [key, group] of Object.entries(features.outfits)) {
+    const opt = document.createElement('option');
+    opt.value = key;
+    opt.textContent = group.label;
+    if (key === state.outfitCategory) opt.selected = true;
+    categorySelect.appendChild(opt);
+  }
+
+  populateOutfitDetails(detailSelect);
+
+  categorySelect.onchange = () => {
+    state.outfitCategory = categorySelect.value;
+    const items = features.outfits[state.outfitCategory].items;
+    state.outfitDetail = items[0].value;
+    populateOutfitDetails(detailSelect);
+    persistAndUpdate();
+  };
+
+  detailSelect.onchange = () => {
+    state.outfitDetail = detailSelect.value;
+    persistAndUpdate();
+  };
+}
+
+function populateOutfitDetails(detailSelect) {
+  detailSelect.innerHTML = '';
+  const items = features.outfits[state.outfitCategory].items;
+  for (const item of items) {
+    const opt = document.createElement('option');
+    opt.value = item.value;
+    opt.textContent = item.label;
+    if (item.value === state.outfitDetail) opt.selected = true;
+    detailSelect.appendChild(opt);
+  }
+  if (!items.find((i) => i.value === state.outfitDetail)) {
+    state.outfitDetail = items[0].value;
+  }
+}
+
+function renderPoseFields() {
+  const categorySelect = $('#poseCategory');
+  const detailSelect = $('#poseDetail');
+
+  categorySelect.innerHTML = '';
+  for (const [key, group] of Object.entries(features.poses)) {
+    if (group.nsfw && !state.showNsfw) continue;
+    const opt = document.createElement('option');
+    opt.value = key;
+    opt.textContent = group.label + (group.nsfw ? ' (NSFW)' : '');
+    if (key === state.poseCategory) opt.selected = true;
+    categorySelect.appendChild(opt);
+  }
+
+  if (!categorySelect.querySelector(`option[value="${state.poseCategory}"]`)) {
+    const first = categorySelect.options[0];
+    if (first) state.poseCategory = first.value;
+  }
+
+  populatePoseDetails(detailSelect);
+
+  categorySelect.onchange = () => {
+    state.poseCategory = categorySelect.value;
+    const items = features.poses[state.poseCategory].items;
+    state.poseDetail = items[0].value;
+    populatePoseDetails(detailSelect);
+    persistAndUpdate();
+  };
+
+  detailSelect.onchange = () => {
+    state.poseDetail = detailSelect.value;
+    persistAndUpdate();
+  };
+}
+
+function populatePoseDetails(detailSelect) {
+  detailSelect.innerHTML = '';
+  const items = features.poses[state.poseCategory].items;
+  for (const item of items) {
+    const opt = document.createElement('option');
+    opt.value = item.value;
+    opt.textContent = item.label;
+    if (item.value === state.poseDetail) opt.selected = true;
+    detailSelect.appendChild(opt);
+  }
+  if (!items.find((i) => i.value === state.poseDetail)) {
+    state.poseDetail = items[0].value;
+  }
+}
+
+function renderToggles() {
+  $('#showNsfw').checked = state.showNsfw;
+  $('#includeShaved').checked = state.includeShaved;
+  $('#includeBodyDetails').checked = state.includeBodyDetails;
+  $('#customOutfit').value = state.customOutfit || '';
+  $('#customPose').value = state.customPose || '';
+}
+
+function updatePromptOutput() {
+  if (!promptEdited) {
+    $('#promptOutput').value = buildPrompt(state, templates, features);
+  }
+  if (!negativeEdited) {
+    $('#negativeOutput').value = buildNegativePrompt(features);
+  }
+}
+
+function persistAndUpdate() {
+  saveState(state);
+  updatePromptOutput();
+}
+
+function bindGlobalControls() {
+  $('#showNsfw').addEventListener('change', (e) => {
+    state.showNsfw = e.target.checked;
+    renderPoseFields();
+    persistAndUpdate();
+  });
+
+  $('#includeShaved').addEventListener('change', (e) => {
+    state.includeShaved = e.target.checked;
+    persistAndUpdate();
+  });
+
+  $('#includeBodyDetails').addEventListener('change', (e) => {
+    state.includeBodyDetails = e.target.checked;
+    persistAndUpdate();
+  });
+
+  $('#customOutfit').addEventListener('input', (e) => {
+    state.customOutfit = e.target.value;
+    persistAndUpdate();
+  });
+
+  $('#customPose').addEventListener('input', (e) => {
+    state.customPose = e.target.value;
+    persistAndUpdate();
+  });
+
+  $('#promptOutput').addEventListener('input', () => {
+    promptEdited = true;
+  });
+
+  $('#negativeOutput').addEventListener('input', () => {
+    negativeEdited = true;
+  });
+
+  $('#btnRegenerate').addEventListener('click', () => {
+    promptEdited = false;
+    negativeEdited = false;
+    updatePromptOutput();
+  });
+
+  $('#btnCopy').addEventListener('click', () => copyText($('#promptOutput').value, '#btnCopy'));
+  $('#btnCopyNegative').addEventListener('click', () => copyText($('#negativeOutput').value, '#btnCopyNegative'));
+
+  $('#btnReset').addEventListener('click', () => {
+    if (!confirm('Reset all selectors to defaults?')) return;
+    state = resetState();
+    promptEdited = false;
+    negativeEdited = false;
+    initUI();
+    persistAndUpdate();
+  });
+
+  $('#btnRandom').addEventListener('click', () => {
+    state = randomizeState(state, features, { nsfw: state.showNsfw });
+    promptEdited = false;
+    negativeEdited = false;
+    initUI();
+    persistAndUpdate();
+  });
+
+  $('#btnSavePreset').addEventListener('click', savePreset);
+  $('#btnLoadPreset').addEventListener('click', loadPreset);
+  $('#btnDeletePreset').addEventListener('click', deletePreset);
+
+  refreshPresetList();
+}
+
+async function copyText(text, btnSelector) {
+  try {
+    await navigator.clipboard.writeText(text);
+    const btn = $(btnSelector);
+    const original = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = original; }, 1500);
+  } catch {
+    alert('Copy failed — select the text manually.');
+  }
+}
+
+function refreshPresetList() {
+  const presets = loadPresets();
+  const select = $('#presetList');
+  select.innerHTML = '<option value="">— Select preset —</option>';
+  for (const name of Object.keys(presets).sort()) {
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    select.appendChild(opt);
+  }
+}
+
+function savePreset() {
+  const name = $('#presetName').value.trim();
+  if (!name) {
+    alert('Enter a preset name first.');
+    return;
+  }
+  const presets = loadPresets();
+  presets[name] = { ...state };
+  savePresets(presets);
+  refreshPresetList();
+  $('#presetList').value = name;
+  $('#presetName').value = '';
+}
+
+function loadPreset() {
+  const name = $('#presetList').value;
+  if (!name) return;
+  const presets = loadPresets();
+  if (!presets[name]) return;
+  state = { ...state, ...presets[name] };
+  promptEdited = false;
+  negativeEdited = false;
+  initUI();
+  persistAndUpdate();
+}
+
+function deletePreset() {
+  const name = $('#presetList').value;
+  if (!name) return;
+  if (!confirm(`Delete preset "${name}"?`)) return;
+  const presets = loadPresets();
+  delete presets[name];
+  savePresets(presets);
+  refreshPresetList();
+}
+
+function initUI() {
+  renderSimpleFields($('#bodyFields'), [
+    'age', 'race', 'physique', 'breastSize', 'buttSize',
+    'hairColor', 'hairLength', 'eyeColor', 'shaved'
+  ]);
+  renderSimpleFields($('#styleFields'), [
+    'imageStyle', 'lighting', 'backdrop', 'cameraAngle'
+  ]);
+  renderOutfitFields();
+  renderPoseFields();
+  renderToggles();
+}
+
+async function main() {
+  try {
+    await loadData();
+    initUI();
+    bindGlobalControls();
+    updatePromptOutput();
+  } catch (err) {
+    document.body.innerHTML = `<div class="error-banner">
+      <h2>Failed to load app data</h2>
+      <p>${err.message}</p>
+      <p>Try running via a local server: <code>cd prompt-builder && python3 -m http.server 8080</code></p>
+    </div>`;
+  }
+}
+
+main();
+
+</script>
+</body>
+</html>

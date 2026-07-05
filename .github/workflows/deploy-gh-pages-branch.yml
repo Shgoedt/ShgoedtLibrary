@@ -17,9 +17,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Build standalone app
+        run: node prompt-builder/scripts/build-standalone.mjs
+
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./prompt-builder
+          publish_dir: ./prompt-builder/dist
           force_orphan: true

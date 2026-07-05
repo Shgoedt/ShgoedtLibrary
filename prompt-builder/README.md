@@ -13,9 +13,7 @@ A single-page HTML tool for building image-generation prompts from human feature
 
 ## Run locally
 
-ES modules require a local HTTP server (opening `index.html` directly via `file://` will not work).
-
-### Option 1: Python (built-in)
+### Development (multi-file, hot reload friendly)
 
 ```bash
 cd prompt-builder
@@ -24,72 +22,63 @@ python3 -m http.server 8080
 
 Open [http://localhost:8080](http://localhost:8080)
 
+> ES modules require a local HTTP server — opening `index.html` via `file://` won't work.
+
+### Standalone build (same as GitHub Pages deploy)
+
+```bash
+cd prompt-builder
+node scripts/build-standalone.mjs
+python3 -m http.server 8080 --directory dist
+```
+
 ## Use on iPhone / iPad
 
-### Instant preview (no setup)
+### Instant preview (works now)
 
-Open this link in **Safari** on your iPhone or iPad:
+Open this link in **Safari**:
 
-**https://cdn.jsdelivr.net/gh/Shgoedt/ShgoedtLibrary@master/prompt-builder/index.html**
+**https://raw.githack.com/Shgoedt/ShgoedtLibrary/master/prompt-builder/dist/index.html**
 
 Add to Home Screen: Safari → Share → **Add to Home Screen**.
 
-### Official GitHub Pages (recommended)
+> Do **not** use the jsDelivr or raw GitHub links — they serve HTML as plain text and Safari will show source code instead of the app.
 
-One-time setup in your repo:
+### GitHub Pages (recommended, permanent URL)
 
-1. Go to **Settings → Pages**
-2. Under **Build and deployment**, set **Source** to **GitHub Actions**
-3. Re-run the **Deploy Prompt Builder** workflow (Actions tab)
+One-time setup:
 
-Live URL: **https://shgoedt.github.io/ShgoedtLibrary/**
+1. Open [Settings → Pages](https://github.com/Shgoedt/ShgoedtLibrary/settings/pages)
+2. Set **Source** to **Deploy from a branch**
+3. Choose branch **`gh-pages`**, folder **`/ (root)`**, click **Save**
 
-Alternatively, set Source to **Deploy from branch** → `gh-pages` / `/ (root)` after the **Deploy to gh-pages branch** workflow runs.
+After ~1 minute, open:
 
-### Option 2: Node.js
+**https://shgoedt.github.io/ShgoedtLibrary/**
 
-```bash
-cd prompt-builder
-npx --yes serve -p 8080
-```
+## Deploy on GitHub
 
-### Option 3: PHP
-
-```bash
-cd prompt-builder
-php -S localhost:8080
-```
-
-## Deploy on GitHub Pages
-
-This repo includes a GitHub Actions workflow that publishes the `prompt-builder/` folder automatically.
-
-1. Push this branch to GitHub
-2. Go to **Settings → Pages** in your repository
-3. Under **Build and deployment**, set **Source** to **GitHub Actions**
-4. After the workflow runs, the app will be available at:
-
-   `https://<username>.github.io/<repo-name>/`
-
-   (The workflow sets the correct base path for project sites.)
-
-To trigger a deploy manually: **Actions → Deploy Prompt Builder → Run workflow**
+Pushing to `master` runs the **Deploy to gh-pages branch** workflow, which builds the standalone app and publishes it to the `gh-pages` branch.
 
 ## Project structure
 
 ```
 prompt-builder/
-├── index.html
+├── index.html              # dev entry (multi-file)
+├── dist/index.html         # standalone bundle (deployed to gh-pages)
+├── scripts/build-standalone.mjs
 ├── styles.css
 ├── data/
-│   ├── features.json    # selector options
-│   └── templates.json   # prompt phrase mappings
+│   ├── features.json
+│   └── templates.json
 └── js/
-    ├── app.js           # UI wiring
-    ├── state.js         # state & localStorage
-    └── promptEngine.js  # prompt assembly
+    ├── app.js
+    ├── state.js
+    └── promptEngine.js
 ```
 
 ## Customization
 
-Edit `data/features.json` to add new outfit categories, poses, or attribute options. Add matching phrase mappings in `data/templates.json`.
+1. Edit `data/features.json` and `data/templates.json`
+2. Rebuild: `node scripts/build-standalone.mjs`
+3. Commit source changes (and `dist/index.html` if you want the githack preview updated immediately)
