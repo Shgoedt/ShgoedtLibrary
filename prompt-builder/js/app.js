@@ -1,11 +1,19 @@
 import { loadState, saveState, resetState, loadPresets, savePresets } from './state.js';
 import { buildPrompt, buildNegativePrompt, randomizeState } from './promptEngine.js';
+import {
+  generateImage,
+  loadApiKey,
+  saveApiKey,
+  RESOLUTIONS,
+  suggestResolution
+} from './imageGenerator.js';
 
 let features = null;
 let templates = null;
 let state = loadState();
 let promptEdited = false;
 let negativeEdited = false;
+let lastImageUrl = null;
 
 const FIELD_LABELS = {
   age: 'Age',
@@ -254,6 +262,97 @@ function bindGlobalControls() {
   $('#btnDeletePreset').addEventListener('click', deletePreset);
 
   refreshPresetList();
+  bindImageGeneration();
+}
+
+function renderImageSettings() {
+  const resolutionSelect = $('#imageResolution');
+  resolutionSelect.innerHTML = '';
+  for (const res of RESOLUTIONS) {
+    const opt = document.createElement('option');
+    opt.value = res.value;
+    opt.textContent = res.label;
+    if (res.value === state.imageResolution) opt.selected = true;
+    resolutionSelect.appendChild(opt);
+  }
+
+  $('#apiKey').value = loadApiKey();
+  $('#imageSeed').value = state.imageSeed ?? -1;
+}
+
+function setImageStatus(message, isError = false) {
+  const el = $('#imageStatus');
+  el.hidden = !message;
+  el.textContent = message || '';
+  el.classList.toggle('is-error', isError);
+}
+
+function showGeneratedImage(url) {
+  lastImageUrl = url;
+  const img = $('#generatedImage');
+  img.src = url;
+  $('#btnDownloadImage').href = url;
+  $('#imageResult').hidden = false;
+}
+
+function bindImageGeneration() {
+  renderImageSettings();
+
+  $('#apiKey').addEventListener('change', (e) => {
+    saveApiKey(e.target.value);
+  });
+
+  $('#apiKey').addEventListener('blur', (e) => {
+    saveApiKey(e.target.value);
+  });
+
+  $('#imageResolution').addEventListener('change', (e) => {
+    state.imageResolution = e.target.value;
+    saveState(state);
+  });
+
+  $('#btnSuggestResolution').addEventListener('click', () => {
+    const suggested = suggestResolution(state.cameraAngle);
+    state.imageResolution = suggested;
+    $('#imageResolution').value = suggested;
+    saveState(state);
+    setImageStatus(`Resolution set to ${suggested} for ${state.cameraAngle.replace(/_/g, ' ')}.`);
+  });
+
+  $('#btnOpenImage').addEventListener('click', () => {
+    if (lastImageUrl) window.open(lastImageUrl, '_blank', 'noopener');
+  });
+
+  $('#btnGenerateImage').addEventListener('click', async () => {
+    const btn = $('#btnGenerateImage');
+    const apiKey = $('#apiKey').value;
+    saveApiKey(apiKey);
+
+    const prompt = $('#promptOutput').value.trim();
+    const resolution = $('#imageResolution').value;
+    const seed = Number.parseInt($('#imageSeed').value, 10);
+
+    btn.disabled = true;
+    $('#imageResult').hidden = true;
+    setImageStatus('Starting…');
+
+    try {
+      const { url } = await generateImage({
+        apiKey,
+        prompt,
+        resolution,
+        seed: Number.isFinite(seed) ? seed : -1,
+        nsfwThreshold: state.nsfwThreshold ?? 0.5,
+        onStatus: setImageStatus
+      });
+      showGeneratedImage(url);
+      setImageStatus('Image generated successfully.');
+    } catch (err) {
+      setImageStatus(err.message, true);
+    } finally {
+      btn.disabled = false;
+    }
+  });
 }
 
 async function copyText(text, btnSelector) {
@@ -327,6 +426,7 @@ function initUI() {
   renderOutfitFields();
   renderPoseFields();
   renderToggles();
+  renderImageSettings();
 }
 
 async function main() {

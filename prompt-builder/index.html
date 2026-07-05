@@ -103,6 +103,40 @@
       </div>
       <textarea id="negativeOutput" rows="3" spellcheck="false" aria-label="Negative prompt"></textarea>
 
+      <div class="image-gen-section">
+        <h3>Generate Image <span class="hint">Z-Image Turbo (free)</span></h3>
+        <p class="image-gen-note">
+          Uses the free <a href="https://docs.sinancode.com/en/api-reference/endpoint/z-image-turbo-free" target="_blank" rel="noopener">SinanCode Z-Image Turbo API</a>.
+          Get a free API key at <a href="https://sinancode.com" target="_blank" rel="noopener">sinancode.com</a> — stored only in your browser.
+        </p>
+        <div class="field">
+          <label for="apiKey">SinanCode API key</label>
+          <input type="password" id="apiKey" placeholder="Paste your API key" autocomplete="off">
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="imageResolution">Resolution</label>
+            <select id="imageResolution" aria-label="Image resolution"></select>
+          </div>
+          <div class="field">
+            <label for="imageSeed">Seed <span class="hint">(-1 = random)</span></label>
+            <input type="number" id="imageSeed" value="-1" min="-1" step="1">
+          </div>
+        </div>
+        <div class="image-gen-actions">
+          <button type="button" id="btnGenerateImage" class="btn btn-primary">Generate image</button>
+          <button type="button" id="btnSuggestResolution" class="btn btn-ghost btn-sm">Match camera angle</button>
+        </div>
+        <p id="imageStatus" class="image-status" role="status" hidden></p>
+        <div id="imageResult" class="image-result" hidden>
+          <img id="generatedImage" alt="Generated image preview">
+          <div class="image-result-actions">
+            <a id="btnDownloadImage" class="btn btn-secondary btn-sm" download="character-prompt-builder.jpg">Download</a>
+            <button type="button" id="btnOpenImage" class="btn btn-ghost btn-sm">Open full size</button>
+          </div>
+        </div>
+      </div>
+
       <div class="preset-section">
         <h3>Presets</h3>
         <div class="preset-row">

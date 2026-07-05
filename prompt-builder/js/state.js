@@ -23,7 +23,9 @@ export const defaultState = {
   includeShaved: true,
   includeBodyDetails: true,
   customOutfit: '',
-  customPose: ''
+  customPose: '',
+  imageResolution: '1024x1024',
+  nsfwThreshold: 0.5
 };
 
 export function loadState() {
