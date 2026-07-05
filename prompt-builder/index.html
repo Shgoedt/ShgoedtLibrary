@@ -104,35 +104,56 @@
       <textarea id="negativeOutput" rows="3" spellcheck="false" aria-label="Negative prompt"></textarea>
 
       <div class="image-gen-section">
-        <h3>Generate Image <span class="hint">Z-Image Turbo (free)</span></h3>
-        <p class="image-gen-note">
-          Uses the free <a href="https://docs.sinancode.com/en/api-reference/endpoint/z-image-turbo-free" target="_blank" rel="noopener">SinanCode Z-Image Turbo API</a>.
-          Get a free API key at <a href="https://sinancode.com" target="_blank" rel="noopener">sinancode.com</a> — stored only in your browser.
-        </p>
-        <div class="field">
-          <label for="apiKey">SinanCode API key</label>
-          <input type="password" id="apiKey" placeholder="Paste your API key" autocomplete="off">
+        <div class="output-header output-header-secondary">
+          <h3>Generate Image</h3>
+          <span class="image-gen-badge">Z-Image Turbo</span>
         </div>
-        <div class="field-row">
+        <div class="image-gen-content">
+          <p class="image-gen-note">
+            Free via <a href="https://docs.sinancode.com/en/api-reference/endpoint/z-image-turbo-free" target="_blank" rel="noopener">SinanCode API</a>.
+            Get a key at <a href="https://sinancode.com" target="_blank" rel="noopener">sinancode.com</a>.
+          </p>
           <div class="field">
-            <label for="imageResolution">Resolution</label>
-            <select id="imageResolution" aria-label="Image resolution"></select>
+            <label for="apiKey">SinanCode API key</label>
+            <div class="api-key-row">
+              <input type="password" id="apiKey" placeholder="Paste your API key" autocomplete="off" spellcheck="false">
+              <span id="apiKeySaved" class="api-key-badge" hidden aria-live="polite">Saved locally</span>
+            </div>
           </div>
-          <div class="field">
-            <label for="imageSeed">Seed <span class="hint">(-1 = random)</span></label>
-            <input type="number" id="imageSeed" value="-1" min="-1" step="1">
+          <div class="field-row">
+            <div class="field">
+              <label for="imageResolution">Resolution</label>
+              <select id="imageResolution" aria-label="Image resolution"></select>
+            </div>
+            <div class="field">
+              <label for="imageSeed">Seed <span class="hint">(-1 = random)</span></label>
+              <input type="number" id="imageSeed" value="-1" min="-1" step="1">
+            </div>
           </div>
-        </div>
-        <div class="image-gen-actions">
-          <button type="button" id="btnGenerateImage" class="btn btn-primary">Generate image</button>
-          <button type="button" id="btnSuggestResolution" class="btn btn-ghost btn-sm">Match camera angle</button>
-        </div>
-        <p id="imageStatus" class="image-status" role="status" hidden></p>
-        <div id="imageResult" class="image-result" hidden>
-          <img id="generatedImage" alt="Generated image preview">
-          <div class="image-result-actions">
-            <a id="btnDownloadImage" class="btn btn-secondary btn-sm" download="character-prompt-builder.jpg">Download</a>
-            <button type="button" id="btnOpenImage" class="btn btn-ghost btn-sm">Open full size</button>
+          <div class="image-gen-actions">
+            <button type="button" id="btnGenerateImage" class="btn btn-primary">Generate image</button>
+            <button type="button" id="btnSuggestResolution" class="btn btn-ghost btn-sm">Match camera angle</button>
+          </div>
+
+          <div id="imageProgress" class="image-progress" hidden aria-live="polite">
+            <div class="image-progress-header">
+              <span class="image-progress-spinner" aria-hidden="true"></span>
+              <span id="imageProgressLabel" class="image-progress-label">Starting…</span>
+              <span id="imageProgressPercent" class="image-progress-percent">0%</span>
+            </div>
+            <div class="image-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+              <div id="imageProgressBar" class="image-progress-bar"></div>
+            </div>
+          </div>
+
+          <p id="imageStatus" class="image-status-message" role="status" hidden></p>
+
+          <div id="imageResult" class="image-result" hidden>
+            <img id="generatedImage" alt="Generated image preview">
+            <div class="image-result-actions">
+              <a id="btnDownloadImage" class="btn btn-secondary btn-sm" download="character-prompt-builder.jpg">Download</a>
+              <button type="button" id="btnOpenImage" class="btn btn-ghost btn-sm">Open full size</button>
+            </div>
           </div>
         </div>
       </div>
