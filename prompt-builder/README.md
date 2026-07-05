@@ -10,7 +10,7 @@ A single-page HTML tool for building image-generation prompts from human feature
 - **Live prompt generation** with editable output and negative prompt
 - **Presets** saved to `localStorage`
 - **Randomize** button for quick inspiration
-- **Image generation** via uncensored Kwiki AI API (5 free credits/day — API key stored locally)
+- **Image generation** via ModelsLab uncensored NSFW models (100 free API calls/day)
 
 ## Run locally
 
@@ -57,15 +57,15 @@ After ~1 minute, open:
 
 **https://shgoedt.github.io/ShgoedtLibrary/**
 
-## Image generation (Kwiki AI — uncensored)
+## Image generation (ModelsLab — uncensored)
 
-The app generates images from your prompt using the **uncensored** [Kwiki AI API](https://kwikiai.com/guides/nsfw-ai-api) — no content filters on legal adult prompts.
+Generates images using [ModelsLab](https://modelslab.com/image-generation-api) NSFW models with the safety checker disabled.
 
-1. Create a free account at [kwikiai.com/account](https://kwikiai.com/account) (5 free credits per day)
+1. Create a free account at [modelslab.com](https://modelslab.com) (100 API calls/day, no card)
 2. Paste your API key into the app (saved in your browser only)
-3. Choose style (realistic / anime / nude) and quality, then click **Generate image**
+3. Pick model, resolution, and quality, then click **Generate image**
 
-Generation typically takes 30–90 seconds. Image URLs are temporary — download to keep them.
+The negative prompt field is sent to the API. Image URLs are temporary (24h) — download to keep them.
 
 ## Deploy on GitHub
 

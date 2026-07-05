@@ -24,7 +24,8 @@ export const defaultState = {
   includeBodyDetails: true,
   customOutfit: '',
   customPose: '',
-  imageStyle_gen: 'realistic',
+  imageModel: 'NSFW-flux-lora',
+  imageResolution: '768x1024',
   imageQuality: 'fast'
 };
 

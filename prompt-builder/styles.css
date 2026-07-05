@@ -336,6 +336,13 @@ textarea {
   text-decoration: underline;
 }
 
+.image-gen-note code {
+  font-size: 0.75rem;
+  background: var(--surface-2);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+}
+
 .api-key-row {
   display: flex;
   align-items: center;

@@ -4,9 +4,11 @@ import {
   generateImage,
   loadApiKey,
   saveApiKey,
-  STYLES,
+  MODELS,
+  RESOLUTIONS,
   QUALITIES,
-  suggestStyle
+  suggestModel,
+  suggestResolution
 } from './imageGenerator.js';
 
 let features = null;
@@ -267,14 +269,24 @@ function bindGlobalControls() {
 }
 
 function renderImageSettings() {
-  const styleSelect = $('#imageStyleGen');
-  styleSelect.innerHTML = '';
-  for (const item of STYLES) {
+  const modelSelect = $('#imageModel');
+  modelSelect.innerHTML = '';
+  for (const item of MODELS) {
     const opt = document.createElement('option');
     opt.value = item.value;
     opt.textContent = item.label;
-    if (item.value === state.imageStyle_gen) opt.selected = true;
-    styleSelect.appendChild(opt);
+    if (item.value === state.imageModel) opt.selected = true;
+    modelSelect.appendChild(opt);
+  }
+
+  const resolutionSelect = $('#imageResolution');
+  resolutionSelect.innerHTML = '';
+  for (const item of RESOLUTIONS) {
+    const opt = document.createElement('option');
+    opt.value = item.value;
+    opt.textContent = item.label;
+    if (item.value === state.imageResolution) opt.selected = true;
+    resolutionSelect.appendChild(opt);
   }
 
   const qualitySelect = $('#imageQuality');
@@ -298,9 +310,11 @@ function updateApiKeyBadge() {
 
 function setImageGenBusy(busy) {
   $('#btnGenerateImage').disabled = busy;
-  $('#btnSuggestStyle').disabled = busy;
+  $('#btnSuggestModel').disabled = busy;
+  $('#btnSuggestResolution').disabled = busy;
   $('#apiKey').disabled = busy;
-  $('#imageStyleGen').disabled = busy;
+  $('#imageModel').disabled = busy;
+  $('#imageResolution').disabled = busy;
   $('#imageQuality').disabled = busy;
 
   const btn = $('#btnGenerateImage');
@@ -376,8 +390,13 @@ function bindImageGeneration() {
     persistApiKey(e.target.value);
   });
 
-  $('#imageStyleGen').addEventListener('change', (e) => {
-    state.imageStyle_gen = e.target.value;
+  $('#imageModel').addEventListener('change', (e) => {
+    state.imageModel = e.target.value;
+    saveState(state);
+  });
+
+  $('#imageResolution').addEventListener('change', (e) => {
+    state.imageResolution = e.target.value;
     saveState(state);
   });
 
@@ -386,12 +405,20 @@ function bindImageGeneration() {
     saveState(state);
   });
 
-  $('#btnSuggestStyle').addEventListener('click', () => {
-    const suggested = suggestStyle(state.imageStyle, state.outfitCategory);
-    state.imageStyle_gen = suggested;
-    $('#imageStyleGen').value = suggested;
+  $('#btnSuggestModel').addEventListener('click', () => {
+    const suggested = suggestModel(state.imageStyle);
+    state.imageModel = suggested;
+    $('#imageModel').value = suggested;
     saveState(state);
-    setImageStatus(`Style set to ${suggested}.`);
+    setImageStatus(`Model set to ${suggested}.`);
+  });
+
+  $('#btnSuggestResolution').addEventListener('click', () => {
+    const suggested = suggestResolution(state.cameraAngle);
+    state.imageResolution = suggested;
+    $('#imageResolution').value = suggested;
+    saveState(state);
+    setImageStatus(`Resolution set to ${suggested}.`);
   });
 
   $('#btnOpenImage').addEventListener('click', () => {
@@ -403,7 +430,9 @@ function bindImageGeneration() {
     persistApiKey(apiKey);
 
     const prompt = $('#promptOutput').value.trim();
-    const style = $('#imageStyleGen').value;
+    const negativePrompt = $('#negativeOutput').value.trim();
+    const modelId = $('#imageModel').value;
+    const resolution = $('#imageResolution').value;
     const quality = $('#imageQuality').value;
 
     setImageGenBusy(true);
@@ -415,7 +444,9 @@ function bindImageGeneration() {
       const { url } = await generateImage({
         apiKey,
         prompt,
-        style,
+        negativePrompt,
+        modelId,
+        resolution,
         quality,
         onProgress: setImageProgress
       });
