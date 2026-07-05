@@ -106,15 +106,16 @@
       <div class="image-gen-section">
         <div class="output-header output-header-secondary">
           <h3>Generate Image</h3>
-          <span class="image-gen-badge">Uncensored</span>
+          <span class="image-gen-badge">ModelsLab</span>
         </div>
         <div class="image-gen-content">
           <p class="image-gen-note">
-            Uses the <a href="https://kwikiai.com/guides/nsfw-ai-api" target="_blank" rel="noopener">Kwiki AI uncensored API</a> (5 free credits/day).
-            Get a key at <a href="https://kwikiai.com/account" target="_blank" rel="noopener">kwikiai.com</a>.
+            Uses <a href="https://modelslab.com/image-generation-api" target="_blank" rel="noopener">ModelsLab</a> uncensored NSFW models
+            (<code>safety_checker: off</code>, 100 free calls/day).
+            Get a key at <a href="https://modelslab.com" target="_blank" rel="noopener">modelslab.com</a>.
           </p>
           <div class="field">
-            <label for="apiKey">Kwiki AI API key</label>
+            <label for="apiKey">ModelsLab API key</label>
             <div class="api-key-row">
               <input type="password" id="apiKey" placeholder="Paste your API key" autocomplete="off" spellcheck="false">
               <span id="apiKeySaved" class="api-key-badge" hidden aria-live="polite">Saved locally</span>
@@ -122,17 +123,22 @@
           </div>
           <div class="field-row">
             <div class="field">
-              <label for="imageStyleGen">Generation style</label>
-              <select id="imageStyleGen" aria-label="Generation style"></select>
+              <label for="imageModel">Model</label>
+              <select id="imageModel" aria-label="Image model"></select>
             </div>
             <div class="field">
               <label for="imageQuality">Quality</label>
               <select id="imageQuality" aria-label="Image quality"></select>
             </div>
           </div>
+          <div class="field">
+            <label for="imageResolution">Resolution</label>
+            <select id="imageResolution" aria-label="Image resolution"></select>
+          </div>
           <div class="image-gen-actions">
             <button type="button" id="btnGenerateImage" class="btn btn-primary">Generate image</button>
-            <button type="button" id="btnSuggestStyle" class="btn btn-ghost btn-sm">Match image style</button>
+            <button type="button" id="btnSuggestModel" class="btn btn-ghost btn-sm">Match image style</button>
+            <button type="button" id="btnSuggestResolution" class="btn btn-ghost btn-sm">Match camera angle</button>
           </div>
 
           <div id="imageProgress" class="image-progress" hidden aria-live="polite">
