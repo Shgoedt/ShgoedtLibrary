@@ -17,9 +17,9 @@ HOUSE_NUMBERS = [
 
 OUTPUT_DIR = "/workspace/sor_files"
 
-# File size range in bytes (1.1 MB to 1.7 MB)
-MIN_SIZE = int(1.1 * 1024 * 1024)
-MAX_SIZE = int(1.7 * 1024 * 1024)
+# File size range in bytes (17 KB to 18 KB)
+MIN_SIZE = int(17 * 1024)
+MAX_SIZE = int(18 * 1024)
 
 def create_sor_file(filename, target_size):
     """
