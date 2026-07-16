@@ -8,11 +8,11 @@ import os
 import struct
 import random
 
-# House numbers for file naming
+# House numbers for file naming (32 addresses on Witte de Withlaan, Voorschoten)
 HOUSE_NUMBERS = [
     "1a1", "1a2", "1a3", "1a4", "1a5", "1a6", "1a7", "1a8", "1a9", "1a10",
-    "1a11", "1a12", "1b1", "1b2", "1b3", "1b4", "1b5", "1b6", "1e", "1f",
-    "1g", "1h", "1j", "1k", "1l", "1p", "1r", "1q", "1s"
+    "1a11", "1a12", "1b1", "1b2", "1b3", "1b4", "1b5", "1b6", "1b7", "1b8",
+    "1e", "1f", "1g", "1h", "1j", "1k", "1L", "1N", "1P", "1Q", "1R", "1S"
 ]
 
 OUTPUT_DIR = "/workspace/sor_files"
